@@ -3649,7 +3649,7 @@ function applyRemoteAgents(map){
       if (a.aiConnected === true || a.connected === true) m.remoteConnected = true;
       applyRemoteStatus(m, a);
       added = true;
-      pushMsg({ who:'system', text:'📡 ' + a.name + '님이 실시간 DB에서 합류했습니다.' });
+      pushMsg({ who:'system', noSync:true, text:'📡 ' + a.name + '님이 실시간 DB에서 합류했습니다.' });
       if (zone && zone !== (m.zone || '')) { m.state = 'idle'; walkTo(m, zone, 0); }
       return;
     }
@@ -3786,7 +3786,7 @@ function applyRemoteTasks(map){
       if (r.result) t.summary = reportSummary(r.result);
       state.tasks.unshift(t);
       if (state.tasks.length > MAX_TASKS) state.tasks = state.tasks.slice(0, MAX_TASKS);
-      pushMsg({ who:'system', text:'📡 새 업무가 DB에서 들어왔습니다 — ' + clip(title, 40) });
+      pushMsg({ who:'system', noSync:true, text:'📡 새 업무가 DB에서 들어왔습니다 — ' + clip(title, 40) });
       renderTasks();
     } else {
       if (r.result && !t.result) {
@@ -3794,7 +3794,7 @@ function applyRemoteTasks(map){
         t.summary = reportSummary(t.result);
         t.status = '완료';
         t.progress = 100;
-        pushMsg({ who:'system', text:'📬 DB에서 보고서가 도착했습니다.' });
+        pushMsg({ who:'system', noSync:true, text:'📬 DB에서 보고서가 도착했습니다.' });
         pushMsg({ kind:'result', who: t.target === 'team' ? leader().id : t.target, taskId: t.id });
         toast('보고서 도착! 📬');
         renderAll();
@@ -4415,7 +4415,7 @@ function submitTask(e){
     if (typeof sendLiveTask === 'function') sendLiveTask(task);
     else { task.live = true; task.status = '대기'; task.progress = 10; if (typeof syncTask === 'function') syncTask(task, true); }
     var off = unconnectedMembers().map(function(m){ return m.name; }).join('·');
-    pushMsg({ who:'system', text:'📡 실제 피클에게 지시를 보냈습니다. 응답이 오면 여기에 표시됩니다.' +
+    pushMsg({ who:'system', noSync:true, text:'📡 실제 피클에게 지시를 보냈습니다. 응답이 오면 여기에 표시됩니다.' +
       (off ? ' (🔌 미연결: ' + off + ' — 참여하지 않습니다)' : '') });
     renderAll(); save();
     toast('실제 피클에게 전달했어요 📡');
