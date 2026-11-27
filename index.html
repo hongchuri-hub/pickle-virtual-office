@@ -3624,6 +3624,7 @@ function applyRemoteAgents(map){
       });
       state.members.push(m);
       placeInZone(m, zone || 'report', state.members.length % 4);
+      if (a.aiConnected === true || a.connected === true) m.remoteConnected = true;
       applyRemoteStatus(m, a);
       added = true;
       pushMsg({ who:'system', text:'📡 ' + a.name + '님이 실시간 DB에서 합류했습니다.' });
