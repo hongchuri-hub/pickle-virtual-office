@@ -1112,7 +1112,7 @@ function save(){
       chat: state.chat.slice(-MAX_CHAT),
       tasks: state.tasks.slice(0, MAX_TASKS).map(function(t){
         return { id:t.id, text:t.text, target:t.target, status:t.status, createdAt:t.createdAt,
-                 steps:t.steps, result:t.result, cat:t.cat, progress:t.progress };
+                 steps:t.steps, result:t.result, cat:t.cat, progress:t.progress, live:!!t.live };
       }),
       settings: { speed:state.settings.speed, provider:state.settings.provider,
                   model:state.settings.model, real:state.settings.real,
@@ -2551,7 +2551,7 @@ function setTyping(m, ms){
 /* ══════════════════════════════════════════════════════════
    18. 업무 보드 · 멤버 · 결과물
    ══════════════════════════════════════════════════════════ */
-var TASK_STATUS_CLASS = { '대기':'wait', '접수':'wait', 'DB 전달':'run', '회의 중':'run', '작업 중':'run', '보고 중':'run', '보류':'wait', '오류':'wait', '완료':'done' };
+var TASK_STATUS_CLASS = { '대기':'wait', '접수':'wait', '진행':'run', 'DB 전달':'run', '회의 중':'run', '작업 중':'run', '보고 중':'run', '보류':'wait', '오류':'wait', '완료':'done' };
 
 function taskHtml(t){
   var mem = t.target === 'team' ? '팀 전체' : (byId(t.target) ? byId(t.target).name : '팀 전체');
@@ -2570,7 +2570,7 @@ function taskHtml(t){
     '<div class="bar"><i style="width:' + pct + '%"></i></div>' + stepHtml +
     '<div class="acts">' + (t.result ? '<button class="btn mini primary" data-doc="' + esc(t.id) + '">결과물</button>' +
       '<button class="btn mini" data-copytask="' + esc(t.id) + '">복사</button>' :
-      '<span class="pill wait">' + (t.status === 'DB 전달' ? '실제 피클 응답 대기' : (t.status === '보류' ? 'AI 미연결 보류' : '진행 중')) + '</span>') +
+      '<span class="pill wait">' + (t.live && t.status === '대기' ? '실제 피클 응답 대기' : (t.status === 'DB 전달' ? '실제 피클 응답 대기' : (t.status === '보류' ? 'AI 미연결 보류' : '진행 중'))) + '</span>') +
     '</div></div>';
 }
 
@@ -3556,17 +3556,39 @@ function syncMessage(msg, type, target){
 
 var taskSyncTimers = {};
 
-/* 피클 대기 모드에서 DB가 늦게 붙었을 때, 아직 전달되지 않은 지시를 다시 올린다 */
+/* ── 피클 대기 모드 전달 ───────────────────────────────
+   실제 피클(모모·송송)이 집어갈 수 있도록 /tasks 에 '대기' 상태로 올린다.
+   (피클 업무 감시가 대기/pending/waiting 을 집어간다)
+   한 번 전달되면 다시 PUT하지 않아 피클의 '진행'·'완료' 상태를 덮어쓰지 않는다. */
+function sendLiveTask(task){
+  if (!task) return;
+  task.live = true;
+  task.status = '대기';
+  task.progress = 10;
+  task._liveAt = Date.now();
+  renderTasks();
+  if (!fbOn()) { task._livePushed = false; return; }
+  fbPut('/tasks/' + task.id, {
+    id: task.id, title: task.text, assignedTo: task.target, createdBy: 'owner',
+    status: '대기', result: '', createdAt: task.createdAt, updatedAt: Date.now()
+  }).then(function(){
+    task._livePushed = true;
+  }).catch(function(e){
+    task._livePushed = false;
+    FB.lastError = e.message;
+  });
+}
+
+/* DB가 늦게 붙었을 때, 아직 전달되지 않은 지시를 다시 올린다 */
 function flushPendingLive(){
   if (!fbOn() || !FB.online) return;
   var now = Date.now();
   state.tasks.forEach(function(t){
-    if (!t || !t.live || t.result) return;
-    if (t.status !== 'DB 전달') return;
+    if (!t || !t.live || t.result || t._livePushed) return;
+    if (t.status !== '대기') return;
     if (now - (Number(t.createdAt) || 0) > 1000 * 60 * 3) return;
     if (now - (t._liveAt || 0) < 7000) return;
-    t._liveAt = now;
-    syncTask(t, true);
+    sendLiveTask(t);
   });
 }
 
@@ -3681,6 +3703,14 @@ function applyRemoteMessages(map){
   if (!keys.length) { FB.firstPull = false; return; }
   var list = keys.map(function(k){ return { k:k, m:map[k] }; })
     .filter(function(x){ return x.m && typeof x.m === 'object' && x.m.text; })
+    .map(function(x){
+      var r = x.m;
+      /* 피클 업무 감시는 author/authorName/ts 로 남기기도 한다 */
+      if (!r.senderId && r.author) r.senderId = r.author;
+      if (!r.senderName && r.authorName) r.senderName = r.authorName;
+      if (!r.createdAt && r.ts) r.createdAt = r.ts;
+      return x;
+    })
     .sort(function(a, b){ return (Number(a.m.createdAt) || 0) - (Number(b.m.createdAt) || 0); });
 
   var first = FB.firstPull;
@@ -4382,11 +4412,8 @@ function submitTask(e){
   renderAll(); save();
 
   if (live) {
-    task.live = true;
-    task._liveAt = Date.now();
-    task.status = 'DB 전달';
-    task.progress = 10;
-    if (typeof syncTask === 'function') syncTask(task, true);
+    if (typeof sendLiveTask === 'function') sendLiveTask(task);
+    else { task.live = true; task.status = '대기'; task.progress = 10; if (typeof syncTask === 'function') syncTask(task, true); }
     var off = unconnectedMembers().map(function(m){ return m.name; }).join('·');
     pushMsg({ who:'system', text:'📡 실제 피클에게 지시를 보냈습니다. 응답이 오면 여기에 표시됩니다.' +
       (off ? ' (🔌 미연결: ' + off + ' — 참여하지 않습니다)' : '') });
@@ -4395,6 +4422,8 @@ function submitTask(e){
     return;
   }
 
+  /* 즉시 실행: 이 화면에서 돌리는 업무라 '대기'로 내보내지 않는다 (피클 감시가 중복으로 집어가지 않도록) */
+  task.status = '접수';
   if (typeof syncTask === 'function') syncTask(task, true);
   queueTask(task);
 }
