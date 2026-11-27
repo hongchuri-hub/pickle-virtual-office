@@ -2512,7 +2512,7 @@ function walkTo(m, zoneId, slotIdx){
     }
     var pts = findPath(a, b);
     if (!pts || pts.length < 2){
-      m.walking = false; m.route = null; m.zone = prev;
+      m.walking = false; m.route = null; m.goal = null; m.zone = prev;
       flushArrive(m);
       return;
     }
@@ -5283,6 +5283,8 @@ function boot(){
 
   startLoop();
   startAmbient();
+  /* 첫 이동이 끊기지 않게 길찾기 격자를 미리 만들어 둔다 */
+  setTimeout(function(){ try { if (typeof navBuild === 'function' && !NAV.grid) navBuild(); } catch (e) {} }, 2000);
 
   /* 첫 방문 안내 — 모모에게 대사를 지어내지 않고 반짝임만 */
   if (isNew) {
