@@ -925,7 +925,7 @@ input,textarea,select{font:inherit;color:inherit}
         <option value="live">🕓 피클 대기 — 실제 피클(모모·송송)에게 Firebase로 전달</option>
         <option value="instant">⚡ 즉시 실행 — API 키가 있을 때만 이 화면에서 실행</option>
       </select>
-      <div class="hint">연결되지 않은 비서(탐이·글이 등)는 어떤 모드에서도 대사를 지어내지 않고 🔌 미연결로 대기합니다.</div>
+      <div class="hint">연결되지 않은 비서(탐이·글이 등)는 대사를 지어내지 않고 오피스에도 나오지 않습니다. 팀원 탭의 🔌 미연결 비서에서 ⚙️ API를 연결하면 그때 출근합니다.</div>
     </div>
     <div class="frow" style="display:flex;gap:6px">
       <button type="button" class="btn" id="btnSyncNow">지금 동기화</button>
@@ -1223,7 +1223,7 @@ function alive(m){ return m && state.members.indexOf(m) >= 0; }
    실제로 응답할 수 있는 비서만 "연결됨"으로 본다.
    · 피클 연결: 모모(momo), 송송(wife_pickle) — Firebase로 실제 응답이 온다
    · 그 밖의 비서: ⚙️에 API 키를 넣어 이 화면에서 실제 AI로 일할 때만 연결됨
-   · 연결되지 않은 비서는 대사·응답을 절대 지어내지 않는다 (미연결로 대기). */
+   · 연결되지 않은 비서는 대사·응답을 절대 지어내지 않고, 오피스 지도에도 나오지 않는다. */
 var PICKLE_CONNECTED = { momo:true, wife_pickle:true };
 
 function hasApiKey(){ return !!loadKey(); }
