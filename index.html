@@ -540,6 +540,9 @@ input,textarea,select{font:inherit;color:inherit}
 @media (max-width:420px){
   .badges{display:none}
 }
+
+/* 연결되지 않은 비서 표시 */
+.pill.off{background:#efece5;color:#8a8270}
 </style>
 </head>
 <body data-view="office">
@@ -551,7 +554,7 @@ input,textarea,select{font:inherit;color:inherit}
       <div><b>피클 가상 오피스</b><small>사장님의 AI 비서팀</small></div>
     </div>
     <div class="badges">
-      <span id="modeBadge" class="badge sim"><i></i>시뮬레이션 모드</span>
+      <span id="modeBadge" class="badge real"><i></i>🕓 피클 대기</span>
       <span id="dbBadge" class="badge db off"><i></i>DB 연결 중</span>
       <span id="teamCount" class="badge">👥 4명</span>
     </div>
@@ -562,7 +565,7 @@ input,textarea,select{font:inherit;color:inherit}
         <button type="button" data-speed="2" title="두 배 속도">2×</button>
       </div>
       <button type="button" class="btn" id="btnGym" aria-label="운동 달력" title="월간 운동 달력">🏋️</button>
-      <button type="button" class="btn mode" id="runModeBtn" title="실행 방식 전환">⚡ 즉시 실행</button>
+      <button type="button" class="btn mode" id="runModeBtn" title="실행 방식 전환">🕓 피클 대기</button>
       <button type="button" class="btn primary" id="btnHire">＋ 비서 채용</button>
       <button type="button" class="btn" id="btnSettings" aria-label="설정">⚙️</button>
       <button type="button" class="btn" id="btnExport" aria-label="기록 내보내기">⬇️</button>
@@ -727,7 +730,7 @@ input,textarea,select{font:inherit;color:inherit}
     <div class="frow">
       <label style="display:flex;align-items:center;gap:8px;font-size:12.5px">
         <input type="checkbox" id="setReal" style="width:16px;height:16px">
-        실제 AI 연동 사용 (끄면 시뮬레이션)
+        API 키로 실제 AI 연동 (끄면 키가 있어도 미연결로 표시)
       </label>
     </div>
 
@@ -742,9 +745,10 @@ input,textarea,select{font:inherit;color:inherit}
     <div class="frow">
       <label for="setRunMode">지시를 보내면</label>
       <select id="setRunMode">
-        <option value="instant">⚡ 즉시 시뮬레이션/AI 실행 (이 화면에서)</option>
-        <option value="live">🕓 실제 피클 대기 (Firebase로 전달)</option>
+        <option value="live">🕓 피클 대기 — 실제 피클(모모·송송)에게 Firebase로 전달</option>
+        <option value="instant">⚡ 즉시 실행 — API 키가 있을 때만 이 화면에서 실행</option>
       </select>
+      <div class="hint">연결되지 않은 비서(탐이·글이 등)는 어떤 모드에서도 대사를 지어내지 않고 🔌 미연결로 대기합니다.</div>
     </div>
     <div class="frow" style="display:flex;gap:6px">
       <button type="button" class="btn" id="btnSyncNow">지금 동기화</button>
@@ -755,8 +759,9 @@ input,textarea,select{font:inherit;color:inherit}
     <div class="note">
       🔒 <b>키는 이 브라우저에만</b> 저장됩니다(localStorage). 피클 서버로 보내지 않고, 브라우저에서
       Gemini/OpenAI로 직접 요청합니다. 공용 기기에서는 쓰지 마세요.<br>
-      ⚠️ OpenAI는 브라우저 CORS 제한으로 막힐 수 있어 <b>Gemini를 권장</b>합니다. 실패하면 그 단계만
-      시뮬레이션으로 이어집니다.
+      ✅ 기본값은 <b>🕓 피클 대기</b>입니다. 모모·송송은 실제 피클이 응답하고, AI가 연결되지 않은 비서는
+      응답하지 않습니다 (가짜 대사 없음).<br>
+      ⚠️ OpenAI는 브라우저 CORS 제한으로 막힐 수 있어 <b>Gemini를 권장</b>합니다.
     </div>
 
     <div class="acts-end">
@@ -881,7 +886,7 @@ var DEFAULT_MEMBERS = [
   { id:'momo', name:'모모', role:'팀장 · 총괄', emoji:'👑', color:'#8ed7f5',
     personality:'밝고 침착한 팀장. 지시를 잘게 쪼개서 나누고, 마지막에 꼭 정리해서 보고합니다.',
     leader:true, homeZone:'lead' },
-  { id:'wife_pickle', name:'사모님 비서', role:'일정 · 살림 매니저', emoji:'🌸', color:'#f7b6d2',
+  { id:'wife_pickle', name:'송송', role:'일정 · 살림 매니저', emoji:'🌸', color:'#f7b6d2',
     personality:'다정하고 꼼꼼한 살림 담당. 일정·마감·연락처럼 생활에 붙은 일을 먼저 챙깁니다.',
     leader:false, homeZone:'desk' },
   { id:'tami', name:'탐이', role:'리서치 담당', emoji:'🔍', color:'#a8e6a1',
@@ -900,12 +905,6 @@ var QUICK_TASKS = [
   '블로그 글 한 편 써줘'
 ];
 
-var SIM_IDLE_LINES = [
-  '커피 한 잔 하고 올게요 ☕','오늘 사무실 공기 좋다~','자료 정리 중이에요 📚',
-  '모니터가 제일 좋아요 💻','사장님 부르시면 바로 갈게요!','책 좀 읽고 있을게요 📖',
-  '화분 물 줬어요 🌱','회의실 다과는 제가 챙길게요 🍪','집중 모드 켰습니다 🎧'
-];
-
 /* ══════════════════════════════════════════════════════════
    1. 상태
    ══════════════════════════════════════════════════════════ */
@@ -913,7 +912,7 @@ var state = {
   members: [],
   chat: [],
   tasks: [],
-  settings: { speed:1, provider:'gemini', model:'', real:false, paused:false, db:true, mode:'instant' },
+  settings: { speed:1, provider:'gemini', model:'', real:false, paused:false, db:true, mode:'live', modeV:2 },
   selected: null,
   hover: null,
   tab: 'chat',
@@ -971,7 +970,37 @@ function team(){ return state.members.filter(function(m){ return !m.leader; }); 
 function memberIndex(m){ return state.members.indexOf(m); }
 function alive(m){ return m && state.members.indexOf(m) >= 0; }
 
-/* 역할 종류 추론 (시뮬레이션 대사 선택용) */
+/* ── 연결 상태 ─────────────────────────────────────────────
+   실제로 응답할 수 있는 비서만 "연결됨"으로 본다.
+   · 피클 연결: 모모(momo), 송송(wife_pickle) — Firebase로 실제 응답이 온다
+   · 그 밖의 비서: ⚙️에 API 키를 넣어 이 화면에서 실제 AI로 일할 때만 연결됨
+   · 연결되지 않은 비서는 대사·응답을 절대 지어내지 않는다 (미연결로 대기). */
+var PICKLE_CONNECTED = { momo:true, wife_pickle:true };
+
+function hasApiKey(){ return !!loadKey(); }
+function useRealAI(){ return !!(state.settings.real && loadKey()); }
+function isPickleConnected(m){
+  if (!m) return false;
+  if (PICKLE_CONNECTED[m.id]) return true;
+  return !!m.remoteConnected;
+}
+function agentConnected(m){
+  if (!m) return false;
+  if (isPickleConnected(m)) return true;
+  return useRealAI();
+}
+function connectionLabel(m){
+  if (isPickleConnected(m)) return '피클 연결됨';
+  if (useRealAI()) return 'AI 키 연결됨';
+  return '미연결';
+}
+function connectedMembers(){ return state.members.filter(agentConnected); }
+function unconnectedMembers(){ return state.members.filter(function(m){ return !agentConnected(m); }); }
+function noAiNoticeText(name){
+  return '🔌 ' + (name || '이 비서') + '는 아직 AI API가 연결되지 않아 응답할 수 없습니다. 상단 ⚙️에서 API 키를 연결해 주세요.';
+}
+
+/* 역할 종류 추론 (분담 이름 선택용) */
 function roleKind(m){
   if (!m) return 'general';
   if (m.leader) return 'lead';
@@ -1087,7 +1116,7 @@ function save(){
       }),
       settings: { speed:state.settings.speed, provider:state.settings.provider,
                   model:state.settings.model, real:state.settings.real,
-                  db:state.settings.db, mode:state.settings.mode },
+                  db:state.settings.db, mode:state.settings.mode, modeV:2 },
       workouts: state.workouts || null,
       counter: state.counter
     };
@@ -1120,7 +1149,11 @@ function loadState(){
         state.members = d.members.map(function(m){ return makeActor(m); });
         /* 예전 저장본의 'wife' id를 wife_pickle로 옮긴다 */
         var hadWife = false;
-        state.members.forEach(function(m){ if (m.id === 'wife') { m.id = 'wife_pickle'; hadWife = true; } });
+        state.members.forEach(function(m){
+          if (m.id === 'wife') { m.id = 'wife_pickle'; hadWife = true; }
+          /* 예전 저장본의 기본 이름을 실제 피클 이름(송송)으로 맞춘다 */
+          if (m.id === 'wife_pickle' && (m.name === '사모님 비서' || !m.name)) m.name = '송송';
+        });
         if (hadWife) {
           state.chat = (Array.isArray(d.chat) ? d.chat : []).map(function(c){
             if (c.who === 'wife') c.who = 'wife_pickle';
@@ -1135,7 +1168,14 @@ function loadState(){
           state.settings.model = d.settings.model || '';
           state.settings.real = !!d.settings.real;
           state.settings.db = d.settings.db !== false;
-          state.settings.mode = d.settings.mode === 'live' ? 'live' : 'instant';
+          state.settings.mode = d.settings.mode === 'instant' ? 'instant' : 'live';
+          state.settings.modeV = Number(d.settings.modeV) || 1;
+        }
+        /* 이전 저장본의 기본값(즉시 실행)은 사용자가 고른 값이 아니므로
+           한 번만 피클 대기로 옮긴다. 이후 토글은 그대로 유지된다. */
+        if (state.settings.modeV < 2) {
+          state.settings.mode = 'live';
+          state.settings.modeV = 2;
         }
         state.counter = d.counter || 0;
         if (d.workouts && typeof d.workouts === 'object') state.workouts = d.workouts;
@@ -1754,6 +1794,8 @@ var STATES = {
 };
 
 function stateInfo(m){
+  /* 연결되지 않은 비서는 상태도 '미연결' — 대사를 지어내지 않는다 */
+  if (!agentConnected(m)) return { emoji:'🔌', label:'미연결' };
   if (m.typingUntil > Date.now()) return { emoji:'⌨️', label:'입력 중' };
   if (m.walking) return STATES.moving;
   return STATES[m.state] || STATES.idle;
@@ -1763,7 +1805,10 @@ function pillMetrics(m, u){
   var cs = layout ? layout.charScale : 1;
   var info = stateInfo(m);
   var compact = layout && layout.scale < 0.62;
-  var txt = compact ? m.name : (info.emoji + ' ' + m.name);
+  var linkOff = !agentConnected(m);
+  var txt = linkOff
+    ? (compact ? '🔌' + m.name : '🔌 ' + m.name + ' · 미연결')
+    : (compact ? m.name : (info.emoji + ' ' + m.name));
   var fs = 9.4 * u;
   ctx.font = '800 ' + fs + 'px "Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif';
   var tw = ctx.measureText(txt).width;
@@ -1802,7 +1847,7 @@ function drawStatusPill(m, u){
   ctx.save();
   ctx.globalAlpha = 0.97;
   fillR(p.x, p.y, p.w, p.h, p.h / 2, sel ? '#3b3a46' : 'rgba(255,255,255,.93)');
-  strokeR(p.x, p.y, p.w, p.h, p.h / 2, sel ? '#3b3a46' : rgba(m.color, 0.8), 1);
+  strokeR(p.x, p.y, p.w, p.h, p.h / 2, sel ? '#3b3a46' : (agentConnected(m) ? rgba(m.color, 0.8) : 'rgba(180,172,158,.9)'), 1);
   ctx.fillStyle = sel ? '#fff' : '#6b6577';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(p.txt, m.x, p.y + p.h / 2 + 0.5);
@@ -2256,7 +2301,9 @@ function renderSelCard(){
   $('#selName').textContent = m.name + (m.leader ? ' 팀장' : '');
   $('#selRole').textContent = m.role;
   var info = stateInfo(m);
-  $('#selState').textContent = info.emoji + ' ' + info.label + (m.bubble && m.bubbleUntil > Date.now() ? ' · ' + m.bubble : '');
+  $('#selState').textContent = agentConnected(m)
+    ? (info.emoji + ' ' + info.label + (m.bubble && m.bubbleUntil > Date.now() ? ' · ' + m.bubble : ''))
+    : '🔌 AI 미연결 — 응답할 수 없어요';
   var tLine = $('#selTask');
   var cur = null;
   for (var i = 0; i < state.tasks.length; i++) {
@@ -2311,19 +2358,17 @@ function startLoop(){
    ══════════════════════════════════════════════════════════ */
 function startAmbient(){
   if (window.__officeAmbient) clearInterval(window.__officeAmbient);
+  /* 연결되지 않은 비서에게 대사를 지어내지 않도록, 잡담(말풍선 대사)은 쓰지 않는다.
+     가끔 먼지·반짝임 같은 시각 효과만 띄운다. */
   window.__officeAmbient = setInterval(function(){
     if (state.settings.paused) return;
-    if (Math.random() < 0.42) return;
+    if (Math.random() < 0.72) return;
     var pool = state.members.filter(function(m){
-      return !m.walking && (m.state === 'idle' || m.state === 'working' || m.state === 'researching') &&
-             !(m.bubble && m.bubbleUntil > Date.now());
+      return !m.walking && (m.state === 'idle' || m.state === 'working' || m.state === 'researching');
     });
     if (!pool.length) return;
     var m = pick(pool);
-    say(m, pick(SIM_IDLE_LINES), 2600);
-    if (m.zone === 'lounge') {
-      spawnSparkles(m.x, m.y - 26, 2, '#ffd28a');
-    }
+    if (m.zone === 'lounge') spawnSparkles(m.x, m.y - 26, 2, '#ffd28a');
   }, 11000);
 }
 
@@ -2504,7 +2549,7 @@ function setTyping(m, ms){
 /* ══════════════════════════════════════════════════════════
    18. 업무 보드 · 멤버 · 결과물
    ══════════════════════════════════════════════════════════ */
-var TASK_STATUS_CLASS = { '대기':'wait', '접수':'wait', '회의 중':'run', '작업 중':'run', '보고 중':'run', '완료':'done' };
+var TASK_STATUS_CLASS = { '대기':'wait', '접수':'wait', 'DB 전달':'run', '회의 중':'run', '작업 중':'run', '보고 중':'run', '보류':'wait', '오류':'wait', '완료':'done' };
 
 function taskHtml(t){
   var mem = t.target === 'team' ? '팀 전체' : (byId(t.target) ? byId(t.target).name : '팀 전체');
@@ -2522,7 +2567,8 @@ function taskHtml(t){
     '<span>' + esc(mem) + '</span><span>' + esc(fmtTime(t.createdAt)) + '</span></div>' +
     '<div class="bar"><i style="width:' + pct + '%"></i></div>' + stepHtml +
     '<div class="acts">' + (t.result ? '<button class="btn mini primary" data-doc="' + esc(t.id) + '">결과물</button>' +
-      '<button class="btn mini" data-copytask="' + esc(t.id) + '">복사</button>' : '<span class="pill wait">진행 중</span>') +
+      '<button class="btn mini" data-copytask="' + esc(t.id) + '">복사</button>' :
+      '<span class="pill wait">' + (t.status === 'DB 전달' ? '실제 피클 응답 대기' : (t.status === '보류' ? 'AI 미연결 보류' : '진행 중')) + '</span>') +
     '</div></div>';
 }
 
@@ -2549,9 +2595,13 @@ function renderTeam(){
   var box = $('#teamList');
   if (!box) return;
   var html = state.members.map(function(m){
+    var linked = agentConnected(m);
+    var linkPill = linked
+      ? (isPickleConnected(m) ? '<span class="pill done">📡 피클 연결</span>' : '<span class="pill done">🔑 AI 연결</span>')
+      : '<span class="pill off">🔌 미연결</span>';
     return '<div class="item"><div class="mrow">' +
       '<div class="mav" style="background:' + rgba(m.color, 0.3) + '">' + esc(m.emoji) + '</div>' +
-      '<div class="mm"><b>' + esc(m.name) + (m.leader ? ' <span class="pill" style="background:#fff3d1;color:#a5812c">팀장</span>' : '') + '</b>' +
+      '<div class="mm"><b>' + esc(m.name) + (m.leader ? ' <span class="pill" style="background:#fff3d1;color:#a5812c">팀장</span>' : '') + ' ' + linkPill + '</b>' +
       '<span>' + esc(m.role) + ' · ' + esc(memberStateText(m)) + '</span></div></div>' +
       '<div class="tagline">' + esc(clip(m.personality, 70)) + '</div>' +
       '<div class="usage"><div class="ubar"><i style="width:' + usagePct(m) + '%;background:' + usageColor(usagePct(m)) + '"></i></div>' +
@@ -2589,7 +2639,8 @@ function renderTargets(){
   var cur = sel.value;
   var html = '<option value="team">👥 팀 전체</option>';
   state.members.forEach(function(m){
-    html += '<option value="' + esc(m.id) + '">' + esc(m.emoji + ' ' + m.name) + '</option>';
+    html += '<option value="' + esc(m.id) + '">' + esc(m.emoji + ' ' + m.name) +
+      (agentConnected(m) ? '' : ' 🔌 미연결') + '</option>';
   });
   sel.innerHTML = html;
   if (cur && (cur === 'team' || byId(cur))) sel.value = cur;
@@ -2598,11 +2649,22 @@ function renderTargets(){
 function renderMode(){
   var badge = $('#modeBadge');
   if (!badge) return;
-  var real = state.settings.real && !!loadKey();
-  badge.className = 'badge ' + (real ? 'real' : 'sim');
-  badge.innerHTML = '<i></i>' + (real ? '실제 AI 연동' : '시뮬레이션 모드');
+  var live = fbLiveMode();
+  var real = useRealAI();
+  var cls, label;
+  if (live) { cls = 'real'; label = '🕓 피클 대기'; }
+  else if (real) { cls = 'real'; label = '🔑 실제 AI 연동'; }
+  else { cls = 'sim'; label = '⚡ 즉시 실행 · AI 미연결'; }
+  badge.className = 'badge ' + cls;
+  badge.innerHTML = '<i></i>' + label;
+  badge.title = live
+    ? '지시는 실제 피클(모모·송송)에게 Firebase로 전달됩니다.'
+    : (real ? '⚙️ API 키로 이 화면에서 실제 AI가 일합니다.' : '⚙️에 API 키가 없어 비서들이 응답할 수 없습니다.');
   var cnt = $('#teamCount');
-  if (cnt) cnt.textContent = '👥 ' + state.members.length + '명';
+  if (cnt) {
+    var off = unconnectedMembers().length;
+    cnt.textContent = '👥 ' + state.members.length + '명' + (off ? ' · 🔌 ' + off : '');
+  }
 }
 
 function renderSpeed(){
@@ -2768,9 +2830,12 @@ function renderSettings(){
   var ss2 = $('#dbStatus');
   if (ss2) ss2.textContent = !state.settings.db ? '꺼짐' : (FB.online ? '연결됨 · 마지막 동기화 ' + fmtTime(FB.lastSyncAt || Date.now()) : '연결 안 됨');
   var st = $('#keyState');
-  st.textContent = key ? '키 저장됨' : '키 없음';
-  st.className = 'kstate ' + (key ? 'ok' : 'no');
-  $('#setStatus').textContent = '';
+  st.textContent = key ? (state.settings.real ? '키 저장됨 · 연결됨' : '키 있음 · 연동 꺼짐') : '키 없음';
+  st.className = 'kstate ' + (key && state.settings.real ? 'ok' : 'no');
+  var off = unconnectedMembers().map(function(m){ return m.name; }).join(', ');
+  $('#setStatus').textContent = off
+    ? '🔌 미연결: ' + off + ' — AI가 연결될 때까지 응답하지 않습니다.'
+    : '✅ 모든 비서가 연결되어 있습니다.';
 }
 
 function openSettings(){
@@ -2781,18 +2846,24 @@ function openSettings(){
 function saveSettingsFromForm(){
   state.settings.provider = $('#setProvider').value === 'openai' ? 'openai' : 'gemini';
   state.settings.model = $('#setModel').value.trim();
+  var prevKey = loadKey();
+  var nextKey = $('#setKey').value.trim();
   state.settings.real = !!$('#setReal').checked;
+  /* 키를 새로 넣었으면 실제 AI 연동을 자동으로 켜준다 */
+  if (nextKey && !prevKey) state.settings.real = true;
+  if (!nextKey) state.settings.real = false;
   var wasDb = state.settings.db;
   state.settings.db = !!($('#setDb') ? $('#setDb').checked : true);
   var rm = $('#setRunMode');
   if (rm) state.settings.mode = rm.value === 'live' ? 'live' : 'instant';
-  saveKey($('#setKey').value.trim());
+  state.settings.modeV = 2;
+  saveKey(nextKey);
   if (wasDb !== state.settings.db) {
     if (state.settings.db) { FB.seeded = false; startDbPolling(); }
     else stopDbPolling();
   }
   renderDbBadge(); renderModeButton();
-  renderSettings(); renderMode(); save();
+  renderSettings(); renderMode(); renderTeam(); renderTargets(); renderAll(); save();
   toast('설정 저장 완료');
 }
 
@@ -2814,7 +2885,7 @@ function resetOffice(){
     try { localStorage.removeItem(STORE_KEY); localStorage.removeItem(API_KEY_STORE); } catch (e) {}
     state.members = DEFAULT_MEMBERS.map(function(m){ return makeActor(m); });
     state.chat = []; state.tasks = []; state.selected = null; state.queue = [];
-    state.settings = { speed:1, provider:'gemini', model:'', real:false, paused:false };
+    state.settings = { speed:1, provider:'gemini', model:'', real:false, paused:false, db:true, mode:'live', modeV:2 };
     sessionToken++;
     state.running = false;
     if (typeof FB !== 'undefined') { FB.seeded = false; FB.seen = {}; FB.firstPull = true; }
@@ -2830,7 +2901,7 @@ function resetOffice(){
 
 
 /* ══════════════════════════════════════════════════════════
-   22. 시뮬레이션 대본 (모드별)
+   22. 지시 분류 · 주제 추출
    ══════════════════════════════════════════════════════════ */
 function detectCat(text){
   var t = String(text || '');
@@ -2848,116 +2919,6 @@ function topicOf(text){
   return clip(s, 46);
 }
 
-var SIM = {
-  research: {
-    tag:'조사·비교',
-    meeting: {
-      research:['「{t}」 관련해서 공식 자료 2곳과 실제 후기 1곳을 같은 기준으로 비교해볼게요.', '가격이나 조건이 언제 바뀐 건지 날짜까지 확인해서 붙이겠습니다.'],
-      writer:['나온 내용은 사장님이 3분 안에 판단하실 수 있게 한 장으로 줄이겠습니다.'],
-      sched:['확인해야 할 마감과 연락처는 제가 따로 챙겨서 붙일게요.'],
-      general:['자료가 모이면 제가 중간 정리 들어갈게요.']
-    },
-    work: {
-      research:['공식 안내 2건과 후기 1건을 같은 항목으로 나란히 정리했습니다.', '확인되지 않은 수치는 비워두고 "확인 필요"로 표시했습니다.', '조건이 바뀐 시점이 있어 기준일을 함께 적었습니다.'],
-      writer:['비교 항목을 4개로 줄여 한눈에 보이게 정리했습니다.', '사장님이 고르실 지점을 맨 위에 한 줄로 올렸습니다.', '읽는 데 3분 정도 분량입니다.'],
-      sched:['확인에 필요한 연락처와 가능한 시간대를 정리했습니다.', '마감이 있는 항목은 하루 전 알림으로 잡아뒀습니다.', '추가로 확인할 질문 3개를 뽑았습니다.'],
-      general:['자료를 항목별로 묶어 정리했습니다.', '중복되는 내용은 하나로 합쳤습니다.', '빠진 항목은 "확인 필요"로 표시했습니다.']
-    },
-    summary:'「{t}」은 기준을 먼저 고정하고 3곳을 교차 확인하는 방식으로 정리했습니다. 지금 바로 판단할 수 있는 항목과 추가 확인이 필요한 항목을 나눠 두었습니다.',
-    points:['**기준일 고정** — 가격·조건은 확인한 날짜를 함께 적어야 나중에 흔들리지 않습니다.', '**교차 확인** — 공식 안내와 실제 후기가 다르면 후기를 따로 표시했습니다.', '**결정 지점 3개** — 사장님이 고르실 항목만 위로 올렸습니다.'],
-    plan:['확인 기준(가격·조건·일정) 한 줄로 확정', '공식 자료 2곳 교차 확인', '후기에서 반복되는 불만 1개 확인', '비교 1장으로 정리해 공유'],
-    risk:['공식 안내가 오래된 경우 실제 조건과 다를 수 있습니다.', '재고·가격은 확인한 시점에 따라 달라질 수 있습니다.'],
-    next:['A안 — 가장 무난한 조건으로 바로 진행', 'B안 — 추가 확인 3건을 먼저 처리', 'C안 — 이번 주는 보류하고 다음 주 재확인']
-  },
-  writing: {
-    tag:'문서·기획',
-    meeting: {
-      writer:['구조부터 잡을게요. 도입 → 핵심 3개 → 마무리, 3단으로 갑니다.', '사장님이 쓰시는 말투로 짧게 쓰겠습니다.'],
-      research:['주장에 붙일 근거 사례를 먼저 찾아서 글이에게 넘길게요.'],
-      sched:['마지막에 날짜·이름·링크 사실 확인을 한 번 더 하겠습니다.'],
-      general:['초안 나오면 제가 소리 내어 읽어보고 어색한 문장을 표시할게요.']
-    },
-    work: {
-      writer:['도입 2문장, 본문 3개 소제목, 마무리 1문장으로 초안을 잡았습니다.', '어려운 말은 빼고 사장님이 쓰시는 표현으로 바꿨습니다.', '제목 후보 3개를 따로 뽑았습니다.'],
-      research:['주장에 붙일 근거 2개를 찾아 각주로 달았습니다.', '비슷한 글 3편과 비교해 겹치지 않는 각도를 잡았습니다.', '숫자는 출처가 확인된 것만 남겼습니다.'],
-      sched:['문장 길이를 고르게 다듬었습니다.', '마지막 사실 확인 목록 4개를 만들었습니다.', '게시 전 확인할 것(날짜·이름·링크)을 체크리스트로 뽑았습니다.'],
-      general:['문장을 짧게 끊어 읽기 쉽게 바꿨습니다.', '중복되는 문단 2개를 합쳤습니다.', '마지막에 행동 유도 문장을 넣었습니다.']
-    },
-    summary:'「{t}」 초안을 3단 구조로 잡았습니다. 바로 붙여 쓸 수 있는 본문과 제목 후보, 게시 전 확인 목록까지 함께 정리했습니다.',
-    points:['**한 문장 목적** — 이 글의 목적을 첫 문장에 박았습니다.', '**3단 구조** — 도입·본문 3개·마무리로 나눠 읽기 쉽게 했습니다.', '**사실 확인 목록** — 게시 전 확인할 항목을 따로 뽑았습니다.'],
-    plan:['글의 목적·독자·행동 한 줄로 확정', '제목 후보 3개 중 1개 선택', '본문 초안 작성 후 소리 내어 읽기', '날짜·이름·링크 사실 확인 후 게시'],
-    risk:['확인되지 않은 수치를 넣으면 신뢰가 떨어질 수 있습니다.', '톤이 너무 딱딱하면 읽히지 않을 수 있습니다.'],
-    next:['A안 — 초안 그대로 올리기', 'B안 — 제목만 바꿔 두 편으로 나누기', 'C안 — 사진·이미지 보강 후 올리기']
-  },
-  schedule: {
-    tag:'일정·준비',
-    meeting: {
-      sched:['일정은 제가 캘린더 기준으로 먼저 훑어볼게요. 겹치는 게 있는지 보겠습니다.'],
-      research:['이동 시간과 준비물은 제가 확인해서 붙일게요.'],
-      writer:['정리된 일정은 한 장 요약으로 만들어 두겠습니다.'],
-      general:['빠진 일정이 없는지 마지막에 같이 볼게요.']
-    },
-    work: {
-      sched:['이번 주 고정 일정과 마감을 시간순으로 정리했습니다.', '겹치는 시간대 1곳을 찾아 조정안을 붙였습니다.', '하루 전·당일 아침, 알림 두 번으로 잡아뒀습니다.'],
-      research:['이동에 걸리는 시간과 준비물을 확인했습니다.', '예약이 필요한 항목은 미리 알려드릴게요.', '주차·교통 정보를 한 줄로 정리했습니다.'],
-      writer:['한 장 요약으로 보기 좋게 정리했습니다.', '급한 순서대로 위에 올렸습니다.', '사장님이 결정할 것만 따로 표시했습니다.'],
-      general:['일정을 시간순으로 다시 정렬했습니다.', '준비물 목록을 뽑았습니다.', '확인 필요한 항목을 표시했습니다.']
-    },
-    summary:'「{t}」 일정을 시간순으로 정리하고, 겹치는 구간과 준비물을 함께 표시했습니다. 하루 전·당일 두 번 알림으로 잡아두었습니다.',
-    points:['**겹치는 구간 확인** — 조정이 필요한 시간대를 먼저 봤습니다.', '**준비물 목록** — 빠뜨리면 곤란한 것만 추렸습니다.', '**두 번 알림** — 하루 전, 당일 아침으로 잡았습니다.'],
-    plan:['일정 시간순 정렬', '겹치는 구간 조정안 확인', '준비물·예약 항목 확인', '알림 두 번 설정'],
-    risk:['이동 시간이 길어지면 일정이 밀릴 수 있습니다.', '예약이 필요한 항목은 미리 마감될 수 있습니다.'],
-    next:['A안 — 정리된 일정 그대로 진행', 'B안 — 겹치는 한 건만 옮기기', 'C안 — 준비물은 당일 아침에 챙기기']
-  },
-  purchase: {
-    tag:'구매·비교',
-    meeting: {
-      research:['가격은 같은 제품 기준으로 3곳 비교할게요. 배송비까지 넣겠습니다.'],
-      sched:['결제일과 도착 예정일을 제가 맞춰볼게요.'],
-      writer:['비교 결과는 한눈에 보이게 표로 만들겠습니다.'],
-      general:['필요 없는 옵션은 빼고 계산하겠습니다.']
-    },
-    work: {
-      research:['같은 모델 기준 3곳 가격을 배송비 포함으로 비교했습니다.', '재고와 도착 예정일을 함께 적었습니다.', '조건이 붙은 최저가는 따로 표시했습니다.'],
-      sched:['도착 예정일이 필요한 날짜 전인지 확인했습니다.', '교환·반품 조건을 한 줄로 정리했습니다.', '결제 마감 시간을 함께 적었습니다.'],
-      writer:['총액 기준으로 순서를 매겼습니다.', '필요 없는 옵션을 빼고 다시 계산했습니다.', '사장님이 고를 두 개만 남겼습니다.'],
-      general:['배송비 포함 총액으로 정리했습니다.', '재고가 있는 항목만 남겼습니다.', '구매 후기를 한 줄씩 붙였습니다.']
-    },
-    summary:'「{t}」은 배송비까지 포함한 실제 결제 금액으로 비교했습니다. 조건이 붙은 최저가는 따로 표시했고, 도착 예정일도 확인했습니다.',
-    points:['**총액 기준** — 상품가만 보면 순서가 뒤집힙니다.', '**조건 확인** — 회원·쿠폰 조건이 붙은 가격은 따로 표시했습니다.', '**도착일 확인** — 필요한 날짜 전에 오는지 봤습니다.'],
-    plan:['같은 모델인지 확인', '배송비 포함 총액 계산', '도착 예정일 확인', '교환·반품 조건 확인 후 결제'],
-    risk:['가격은 수시로 바뀌어 결제 시점에 달라질 수 있습니다.', '재고가 없으면 배송이 늦어질 수 있습니다.'],
-    next:['A안 — 최저가로 바로 결제', 'B안 — 도착일이 빠른 곳으로 결제', 'C안 — 장바구니에 담아두고 하루 더 보기']
-  },
-  general: {
-    tag:'실무',
-    meeting: {
-      general:['먼저 무슨 일인지 한 줄로 정리하고, 바로 할 수 있는 것부터 처리할게요.'],
-      research:['배경 자료가 필요하면 제가 찾아서 붙이겠습니다.'],
-      writer:['결과는 사장님이 바로 보실 수 있게 정리하겠습니다.'],
-      sched:['일정이 걸린 일이면 제가 시간부터 맞춰볼게요.']
-    },
-    work: {
-      research:['관련 자료를 찾아 핵심만 추렸습니다.', '확인되지 않은 부분은 따로 표시했습니다.'],
-      writer:['바로 쓸 수 있는 형태로 정리했습니다.', '결정할 지점을 맨 위에 올렸습니다.'],
-      sched:['일정과 마감을 함께 정리했습니다.', '알림이 필요한 시점을 표시했습니다.'],
-      general:['할 일을 순서대로 정리했습니다.', '바로 할 수 있는 것부터 체크했습니다.', '확인이 필요한 항목을 표시했습니다.']
-    },
-    summary:'「{t}」 건은 바로 착수할 수 있는 순서로 정리했습니다. 확인이 필요한 항목과 사장님이 결정하실 지점만 따로 뽑았습니다.',
-    points:['**한 줄 정의** — 할 일을 한 문장으로 정리했습니다.', '**바로 착수** — 오늘 할 수 있는 것부터 배치했습니다.', '**결정 지점** — 사장님 선택이 필요한 항목만 남겼습니다.'],
-    plan:['할 일 한 줄로 정의', '오늘 할 수 있는 것 먼저 처리', '확인 필요한 항목 정리', '결과 보고 후 다음 단계 결정'],
-    risk:['확인이 늦어지면 전체 일정이 밀릴 수 있습니다.'],
-    next:['A안 — 오늘 바로 착수', 'B안 — 확인 후 내일 착수', 'C안 — 담당만 정해두고 보류']
-  }
-};
-
-var PROGRESS = {
-  research:['자료 3건 교차 확인 중…','출처 날짜 확인하는 중이에요','비교 항목 맞추는 중…','모르는 건 표시해두는 중…'],
-  writer:['문장 다듬는 중…','구조 잡는 중이에요','제목 후보 뽑는 중…','읽어보고 고치는 중…'],
-  sched:['일정 시간순으로 맞추는 중…','겹치는 시간 확인 중…','알림 시간 계산 중…','준비물 정리 중…'],
-  general:['정리 중이에요…','확인할 항목 추리는 중…','순서 맞추는 중…','마무리 점검 중…']
-};
-
 var SUBTASKS = {
   research:{ research:'자료 조사·교차 확인', writer:'1장 요약 정리', sched:'연락처·마감 확인', general:'중간 정리' },
   writing:{ research:'근거·사례 찾기', writer:'본문 초안 작성', sched:'사실 확인·톤 다듬기', general:'읽어보고 다듬기' },
@@ -2966,7 +2927,6 @@ var SUBTASKS = {
   general:{ research:'자료 찾기', writer:'결과 정리', sched:'일정·마감 확인', general:'할 일 정리' }
 };
 
-function fillT(s, topic){ return String(s).split('{t}').join(topic); }
 
 function reportSummary(md){
   var lines = String(md || '').split('\n');
@@ -2989,64 +2949,9 @@ function reportSummary(md){
   return '';
 }
 
-function simWorkOutput(kind, task, catKey){
-  var cat = SIM[catKey] || SIM.general;
-  var arr = cat.work[kind] || cat.work.general || [];
-  var topic = topicOf(task.text);
-  var out = arr.map(function(l){ return '· ' + fillT(l, topic); });
-  if (!out.length) out = ['· ' + fillT('맡은 부분을 정리했습니다.', topic)];
-  return out.join('\n');
-}
-
-function buildReport(task, steps, catKey){
-  var cat = SIM[catKey] || SIM.general;
-  var topic = topicOf(task.text);
-  var names = steps.map(function(s){
-    var m = byId(s.m);
-    return (m ? m.emoji + ' ' + m.name : (s.name || '비서'));
-  });
-  var L = [];
-  L.push('# 「' + topic + '」 실행 보고');
-  L.push('');
-  L.push('**' + fmtDate(Date.now()) + '** · 팀장 모모' + (names.length ? ' · ' + names.join(' · ') : ''));
-  L.push('');
-  L.push('## 한 줄 요약');
-  L.push(fillT(cat.summary, topic));
-  L.push('');
-  L.push('## 핵심 포인트');
-  cat.points.forEach(function(p, i){ L.push((i + 1) + '. ' + fillT(p, topic)); });
-  L.push('');
-  if (steps.length) {
-    L.push('## 팀원별 진행 내용');
-    steps.forEach(function(s){
-      var m = byId(s.m);
-      var who = m ? m.emoji + ' ' + m.name : (s.name || '비서');
-      L.push('**' + who + '**');
-      String(s.text || '').split('\n').forEach(function(line){
-        var v = line.replace(/^[\u00b7\u2022\*\-\s]+/, '').trim();
-        if (v) L.push('- ' + v);
-      });
-      L.push('');
-    });
-  }
-  L.push('## 실행 계획');
-  cat.plan.forEach(function(p){ L.push('- [ ] ' + fillT(p, topic)); });
-  L.push('');
-  L.push('## 확인이 필요한 부분');
-  cat.risk.forEach(function(r){ L.push('- ' + fillT(r, topic)); });
-  L.push('');
-  L.push('## 사장님 선택 (다음 액션)');
-  cat.next.forEach(function(n){ L.push('- ' + n); });
-  L.push('');
-  L.push('---');
-  L.push('> ⚙️ 시뮬레이션 모드 결과입니다. 설정(⚙️)에서 Gemini 또는 OpenAI API 키를 넣으면 실제 AI가 회의하고 작성합니다.');
-  return L.join('\n');
-}
-
 /* ══════════════════════════════════════════════════════════
    23. 실제 AI 연동 (Gemini / OpenAI)
    ══════════════════════════════════════════════════════════ */
-function useRealAI(){ return !!(state.settings.real && loadKey()); }
 
 function apiCall(sys, user, maxTokens){
   var key = loadKey();
@@ -3170,26 +3075,57 @@ function setTaskStatus(task, status, progress){
   saveSoon();
 }
 
-async function speak(m, text, tok, ms){
-  if (!alive(m)) return false;
-  setTyping(m, Math.min(2400, (ms || 1200) * 0.6));
-  await waitMs((ms || 1200) * 0.55, tok);
-  if (tok !== sessionToken) return false;
-  m.typingUntil = 0;
-  renderTyping();
-  pushMsg({ who:m.id, text:text });
-  say(m, text, 3000);
-  await waitMs((ms || 1200) * 0.45, tok);
-  return tok === sessionToken;
+/* 연결되지 않은 비서에게는 어떤 대사도 지어내지 않는다.
+   지시를 받아도 '보류'로 두고 이유를 그대로 알린다. */
+function holdNoAi(task, name){
+  pushMsg({ who:'system', text: noAiNoticeText(name) });
+  if (task) {
+    task.status = '보류';
+    task.progress = 0;
+    task.note = 'AI 미연결';
+  }
+  renderTasks(); save();
+  toast('AI가 연결되지 않았습니다');
+}
+
+/* AI 보고서 생성이 실패했을 때 지어내지 않고, 실제 응답만 모아 보여준다 */
+function buildFailureReport(task, steps, err){
+  var topic = topicOf(task.text);
+  var L = [];
+  L.push('# 「' + topic + '」 실행 기록');
+  L.push('');
+  L.push('**' + fmtDate(Date.now()) + '**');
+  L.push('');
+  L.push('## 팀원별 실제 응답');
+  var any = false;
+  (steps || []).forEach(function(s){
+    if (!s || !String(s.text || '').trim()) return;
+    any = true;
+    var m = byId(s.m);
+    L.push('**' + (m ? m.emoji + ' ' + m.name : (s.name || '비서')) + '**');
+    String(s.text || '').split('\n').forEach(function(line){
+      var v = line.replace(/^[\u00b7\u2022*\-]\s*/, '').trim();
+      if (v) L.push('- ' + v);
+    });
+    L.push('');
+  });
+  if (!any) L.push('- (응답 없음)');
+  L.push('---');
+  L.push('> ⚠️ 최종 보고서를 만들지 못했습니다' + (err ? ' — ' + err : '') + '. 위 내용은 팀원 AI의 실제 응답만 모은 것입니다.');
+  return L.join('\n');
 }
 
 async function runTeamTask(task){
   var tok = sessionToken;
   var momo = leader();
-  var members = team();
   var cat = detectCat(task.text);
   task.cat = cat;
   var topic = topicOf(task.text);
+
+  /* 이 화면에서 실제로 일할 수 있는 AI가 없으면 아무 대사도 만들지 않는다 */
+  if (!useRealAI()) { holdNoAi(task, '팀'); return; }
+
+  var workers = state.members.filter(function(m){ return !m.leader && agentConnected(m); });
 
   pushMsg({ who:'system', text:'📥 「' + clip(task.text, 44) + '」 지시 접수 — 팀장 모모가 맡습니다.' });
   setTaskStatus(task, '접수', 6);
@@ -3198,8 +3134,7 @@ async function runTeamTask(task){
   if (alive(momo)) {
     setState(momo, 'reporting');
     await walkTo(momo, 'report', 0);
-    say(momo, '지시 받았습니다! 팀 부를게요 📣', 2400);
-    await waitMs(900, tok);
+    await waitMs(500, tok);
     if (tok !== sessionToken) return;
   }
 
@@ -3209,34 +3144,28 @@ async function runTeamTask(task){
     setState(momo, 'meeting');
     walkTo(momo, 'meet', 0);
   }
-  await waitMs(700, tok);
-  members.forEach(function(m, i){
+  await waitMs(400, tok);
+  workers.forEach(function(m, i){
+    if (!alive(m)) return;
     setState(m, 'meeting');
-    setTimeout(function(){
-      if (!alive(m)) return;
-      walkTo(m, 'meet', i + 1);
-      say(m, '회의실로 갈게요~', 1700);
-    }, i * 220);
+    setTimeout(function(){ if (alive(m)) walkTo(m, 'meet', i + 1); }, i * 200);
   });
-  await waitMs(1500, tok);
+  await waitMs(800, tok);
   if (tok !== sessionToken) return;
+  pushMsg({ who:'system', text:'🗣️ 회의 시작 — 팀장 모모가 분담을 정합니다.' });
 
-  if (alive(momo)) {
-    pushMsg({ who:momo.id, text:'다들 모여주세요. 사장님 지시 들어왔습니다 — 「' + topic + '」' });
-    say(momo, '다들 모여주세요!', 2200);
-  }
-  await waitMs(700, tok);
-
-  /* 실제 AI 모드면 팀장 기획을 API로 */
+  /* 모모의 실제 기획 (API 응답만 사용) */
   var planText = '';
-  if (useRealAI() && alive(momo)) {
+  if (alive(momo)) {
     setTyping(momo, 3000);
+    renderTyping();
     try {
       planText = await apiMomoPlan(task, state.members);
     } catch (e) {
-      pushMsg({ who:'system', text:'⚠️ 팀장 AI 호출 실패: ' + e.message + ' — 시뮬레이션으로 이어갑니다.' });
+      pushMsg({ who:'system', text:'⚠️ 팀장 AI 호출 실패: ' + e.message });
     }
-    momo.typingUntil = 0;
+    if (alive(momo)) momo.typingUntil = 0;
+    renderTyping();
     if (tok !== sessionToken) return;
     if (planText) {
       var planLines = planText.split('\n').map(function(s){ return s.replace(/^[\-\*\d\.\)\s]+/, '').trim(); })
@@ -3250,90 +3179,75 @@ async function runTeamTask(task){
         }
         var safeName = owner ? owner.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : '';
         var body = owner ? line.replace(new RegExp('^' + safeName + '\\s*[:：]?\\s*'), '') : line;
-        if (owner && alive(owner)) {
-          setTyping(owner, 1200);
-          await waitMs(800, tok);
-          owner.typingUntil = 0;
+        if (owner && alive(owner) && agentConnected(owner)) {
           pushMsg({ who:owner.id, text:body });
-          say(owner, body, 2600);
         } else if (alive(momo)) {
           pushMsg({ who:momo.id, text:body });
-          say(momo, body, 2400);
         }
-        await waitMs(700, tok);
+        await waitMs(350, tok);
         if (tok !== sessionToken) return;
       }
     }
   }
 
-  /* 3) 시뮬레이션 회의 발언 (API 기획이 없을 때) */
-  if (!planText) {
-    for (var i2 = 0; i2 < members.length; i2++) {
-      var m2 = members[i2];
-      if (!alive(m2)) continue;
-      var kind = roleKind(m2);
-      var catData = SIM[cat] || SIM.general;
-      var lines = catData.meeting[kind] || catData.meeting.general || [];
-      var text = fillT(pick(lines), topic);
-      var ok = await speak(m2, text, tok, 1500);
-      if (!ok) return;
-    }
-    /* 팀장 정리 */
-    if (alive(momo)) {
-      var leadLine = '좋아요. ' + members.map(function(m3){
-        return m3.name + ' → ' + ((SUBTASKS[cat] || SUBTASKS.general)[roleKind(m3)] || '맡은 일');
-      }).join(', ') + '. 이 순서로 갑니다. 30분 안에 초안 볼게요.';
-      await speak(momo, leadLine, tok, 1400);
-    }
-  }
-
   if (tok !== sessionToken) return;
 
-  /* 4) 각자 자리로 흩어져 작업 */
+  /* 3) 각자 자리로 흩어져 실제 작업 */
   setTaskStatus(task, '작업 중', 34);
-  var jobs = members.map(function(m, idx){
+  var jobs = workers.map(function(m, idx){
     var kind = roleKind(m);
     var sub = (SUBTASKS[cat] || SUBTASKS.general)[kind] || '맡은 일';
     return { m:m, kind:kind, sub:sub, slot:idx };
   });
+  if (!jobs.length) {
+    pushMsg({ who:'system', text:'🔌 일할 수 있는 비서가 없습니다. ⚙️ 설정에서 API 키를 연결해 주세요.' });
+    holdNoAi(task, '비서');
+    return;
+  }
   if (alive(momo)) {
-    var assigned = jobs.map(function(j){ return j.m.name + ': ' + j.sub; }).join(' · ');
+    pushMsg({ who:'system', text:'📋 분담 — ' + jobs.map(function(j){ return j.m.name + ': ' + j.sub; }).join(' · ') });
     if (typeof incrementUsage === 'function') incrementUsage(momo, 1);
-    pushMsg({ who:momo.id, text:'분담 확정 — ' + assigned });
-    say(momo, '자, 시작해볼까요!', 2000);
     setState(momo, 'thinking');
   }
 
-  var results = await Promise.all(jobs.map(function(j){
+  await Promise.all(jobs.map(function(j){
     return workMember(j, task, tok, cat, topic);
   }));
   if (tok !== sessionToken) return;
-  var realUsed = results.filter(function(r){ return r && r.real; }).length;
 
-  /* 5) 모모가 취합해서 보고 */
+  var doneSteps = (task.steps || []).filter(function(s){ return s && String(s.text || '').trim(); });
+  if (!doneSteps.length) {
+    pushMsg({ who:'system', text:'⚠️ 팀원 AI가 응답하지 못했습니다. 결과를 지어내지 않고 여기서 멈춥니다.' });
+    task.status = '오류';
+    task.progress = 60;
+    renderTasks(); save();
+    return;
+  }
+
+  /* 4) 모모가 취합해서 보고 */
   setTaskStatus(task, '보고 중', 82);
   if (alive(momo)) {
     setState(momo, 'reporting');
-    say(momo, '취합해서 보고서로 정리합니다 🧾', 2400);
     await walkTo(momo, 'report', 1);
     if (tok !== sessionToken) return;
-    pushMsg({ who:momo.id, text:'팀 결과 다 모였습니다. 한 장으로 정리해서 올릴게요.' });
-    await waitMs(1200, tok);
+    pushMsg({ who:'system', text:'🧾 팀장 모모가 결과를 취합해 보고서를 씁니다.' });
+    await waitMs(600, tok);
   }
 
-  var report = '';
-  if (useRealAI()) {
-    if (alive(momo)) setTyping(momo, 3000);
+  var report = '', err = '';
+  if (alive(momo)) {
+    setTyping(momo, 3000);
     try {
       report = await apiMomoReport(task, task.steps, state.members);
     } catch (e) {
-      pushMsg({ who:'system', text:'⚠️ 최종 보고서 AI 호출 실패: ' + e.message + ' — 정리본으로 대체합니다.' });
+      err = e.message;
+      pushMsg({ who:'system', text:'⚠️ 최종 보고서 AI 호출 실패: ' + e.message });
     }
-    if (alive(momo)) { momo.typingUntil = 0; }
+    if (alive(momo)) momo.typingUntil = 0;
     if (tok !== sessionToken) return;
   }
-  if (!report) report = buildReport(task, task.steps, cat);
-  if (realUsed === 0 && useRealAI()) report = report + '\n\n> ⚠️ 일부 단계는 시뮬레이션으로 대체되었습니다.';
+  var aiReport = !!report;
+  if (!report) report = buildFailureReport(task, task.steps, err);
 
   task.result = report;
   task.progress = 100;
@@ -3342,27 +3256,20 @@ async function runTeamTask(task){
 
   var sumLine = reportSummary(report);
   task.summary = clip(sumLine, 140);
-  if (alive(momo)) {
+  if (alive(momo) && aiReport) {
     pushMsg({ who:momo.id, text:'사장님, 보고 드립니다. ' + clip(sumLine.replace(/[*`]/g, ''), 90) });
-    pushMsg({ kind:'result', who:momo.id, taskId:task.id });
-    say(momo, '보고 완료! ✅', 3200);
-    spawnSparkles(momo.x, momo.y - 30, 12, '#ffd24d');
-  } else {
-    pushMsg({ kind:'result', who:'system', taskId:task.id });
   }
+  pushMsg({ kind:'result', who:(alive(momo) ? momo.id : 'system'), taskId:task.id });
+  if (alive(momo)) spawnSparkles(momo.x, momo.y - 30, 12, '#ffd24d');
   renderAll(); save();
   toast('보고서 도착! 📬');
 
-  /* 6) 마무리 — 각자 쉬러 */
-  await waitMs(900, tok);
-  members.forEach(function(m, i){
+  /* 5) 마무리 — 각자 자리로 */
+  await waitMs(600, tok);
+  workers.forEach(function(m, i){
     if (!alive(m)) return;
     setState(m, 'idle');
-    setTimeout(function(){
-      if (!alive(m)) return;
-      walkTo(m, 'lounge', i % 4);
-      say(m, '수고하셨습니다~ ☕', 2200);
-    }, i * 160);
+    setTimeout(function(){ if (alive(m)) walkTo(m, 'lounge', i % 4); }, i * 160);
   });
   if (alive(momo)) {
     setTimeout(function(){
@@ -3371,47 +3278,40 @@ async function runTeamTask(task){
       walkTo(momo, 'lead', 0);
     }, 500);
   }
-  await waitMs(600, tok);
+  await waitMs(400, tok);
   renderAll();
 }
 
 async function workMember(job, task, tok, cat, topic){
   var m = job.m;
   if (!alive(m)) return null;
+  if (!agentConnected(m)) return null;
   var zone = job.kind === 'research' ? 'research' : 'desk';
   setState(m, job.kind === 'research' ? 'researching' : 'working');
   await walkTo(m, zone, job.slot);
   if (tok !== sessionToken) return null;
-  say(m, pick(['자리 잡았습니다, 시작할게요!', '바로 들어갑니다 🔍', '정리 시작할게요 ✏️', '확인해볼게요!']), 1900);
-  await waitMs(rand(500, 900), tok);
+  await waitMs(rand(300, 600), tok);
   if (tok !== sessionToken) return null;
 
-  setTyping(m, 2200);
-  await waitMs(rand(900, 1400), tok);
-  if (tok !== sessionToken) return null;
-  m.typingUntil = 0;
-
-  var progLines = PROGRESS[job.kind] || PROGRESS.general;
-  pushMsg({ who:m.id, text:pick(progLines) });
-  await waitMs(rand(500, 900), tok);
-  if (tok !== sessionToken) return null;
-
-  var out = '', real = false, failed = false;
-  if (useRealAI()) {
-    setTyping(m, 3000);
-    try {
-      out = await apiMemberWork(m, job.sub, task);
-      real = true;
-    } catch (e) {
-      failed = true;
-      pushMsg({ who:'system', text:'⚠️ ' + m.name + ' AI 호출 실패: ' + e.message + ' — 시뮬레이션으로 이어갑니다.' });
-    } finally {
-      if (alive(m)) m.typingUntil = 0;
-      renderTyping();
-    }
-    if (tok !== sessionToken) return null;
+  var out = '', err = '';
+  setTyping(m, 3000);
+  renderTyping();
+  try {
+    out = await apiMemberWork(m, job.sub, task);
+  } catch (e) {
+    err = e.message;
+    pushMsg({ who:'system', text:'⚠️ ' + m.name + ' AI 호출 실패: ' + e.message });
+  } finally {
+    if (alive(m)) m.typingUntil = 0;
+    renderTyping();
   }
-  if (!out) out = simWorkOutput(job.kind, task, cat);
+  if (tok !== sessionToken) return null;
+
+  if (!String(out || '').trim()) {
+    pushMsg({ who:'system', text:'🔌 ' + m.name + '가 응답하지 못해 이 단계는 건너뜁니다 (대사로 채우지 않습니다).' });
+    setState(m, 'idle');
+    return { m:m.id, text:'', real:false, failed:true, error:err };
+  }
 
   task.steps.push({ m:m.id, name:m.name, text:clip(out, 1400), at:Date.now() });
   if (typeof incrementUsage === 'function') incrementUsage(m, 1);
@@ -3419,10 +3319,8 @@ async function workMember(job, task, tok, cat, topic){
   renderTasks(); saveSoon();
 
   pushMsg({ who:m.id, text:clip(out, 400) });
-  say(m, pick(['정리 끝! 팀장님께 넘길게요 ✅', '마무리했습니다!', '결과 전달합니다 📤']), 2400);
-  spawnSparkles(m.x, m.y - 26, 6, m.color);
   setState(m, 'idle');
-  return { m:m.id, text:out, real:real, failed:failed };
+  return { m:m.id, text:out, real:true, failed:false };
 }
 
 async function runSoloTask(task){
@@ -3433,14 +3331,14 @@ async function runSoloTask(task){
   var topic = topicOf(task.text);
   if (!alive(m)) { m = leader(); }
 
+  if (!agentConnected(m) || !useRealAI()) { holdNoAi(task, m ? m.name : '비서'); return; }
+
   pushMsg({ who:'system', text:'📥 「' + clip(task.text, 44) + '」 — ' + m.name + '에게 지시.' });
   setTaskStatus(task, '접수', 10);
   setState(m, 'reporting');
   await walkTo(m, 'report', 0);
-  say(m, '부르셨죠? 바로 할게요!', 2400);
-  await waitMs(800, tok);
+  await waitMs(400, tok);
   if (tok !== sessionToken) return;
-  pushMsg({ who:m.id, text:'「' + topic + '」 제가 맡아서 진행하겠습니다. 금방 정리해서 올릴게요.' });
 
   setTaskStatus(task, '작업 중', 40);
   var kind = roleKind(m);
@@ -3448,59 +3346,52 @@ async function runSoloTask(task){
   setState(m, kind === 'research' ? 'researching' : 'working');
   await walkTo(m, zone, 0);
   if (tok !== sessionToken) return;
-  setTyping(m, 2400);
-  await waitMs(1600, tok);
-  if (tok !== sessionToken) return;
-  m.typingUntil = 0;
 
-  var out = '', real = false;
-  if (useRealAI()) {
-    setTyping(m, 3000);
-    try {
-      out = await apiMemberWork(m, (SUBTASKS[cat] || SUBTASKS.general)[kind] || '맡은 일', task);
-      real = true;
-    } catch (e) {
-      pushMsg({ who:'system', text:'⚠️ AI 호출 실패: ' + e.message + ' — 시뮬레이션으로 이어갑니다.' });
-    }
-    if (alive(m)) m.typingUntil = 0;
-    renderTyping();
-    if (tok !== sessionToken) return;
+  var out = '', err = '';
+  setTyping(m, 3000);
+  renderTyping();
+  try {
+    out = await apiMemberWork(m, (SUBTASKS[cat] || SUBTASKS.general)[kind] || '맡은 일', task);
+  } catch (e) {
+    err = e.message;
+    pushMsg({ who:'system', text:'⚠️ ' + m.name + ' AI 호출 실패: ' + e.message });
   }
-  if (!out) out = simWorkOutput(kind, task, cat);
+  if (alive(m)) m.typingUntil = 0;
+  renderTyping();
+  if (tok !== sessionToken) return;
+
+  if (!String(out || '').trim()) {
+    pushMsg({ who:'system', text:'⚠️ 응답이 비어 있어 결과를 지어내지 않고 여기서 멈춥니다.' });
+    task.status = '오류';
+    renderTasks(); save();
+    return;
+  }
   task.steps.push({ m:m.id, name:m.name, text:clip(out, 1400), at:Date.now() });
   if (typeof incrementUsage === 'function') incrementUsage(m, 1);
   setTaskStatus(task, '보고 중', 85);
   pushMsg({ who:m.id, text:clip(out, 420) });
-  await waitMs(700, tok);
+  await waitMs(400, tok);
   if (tok !== sessionToken) return;
 
   var report = '';
-  if (useRealAI()) {
+  if (alive(m)) {
     setTyping(m, 2400);
     try { report = await apiMomoReport(task, task.steps, state.members); }
-    catch (e) { pushMsg({ who:'system', text:'⚠️ 보고서 AI 호출 실패: ' + e.message + ' — 정리본으로 대체합니다.' }); }
+    catch (e) { err = e.message; pushMsg({ who:'system', text:'⚠️ 보고서 AI 호출 실패: ' + e.message }); }
     if (alive(m)) m.typingUntil = 0;
     renderTyping();
   }
-  if (!report) report = buildReport(task, task.steps, cat);
+  var aiReport = !!report;
+  if (!report) report = buildFailureReport(task, task.steps, err);
 
   await walkTo(m, 'report', 1);
   if (tok !== sessionToken) return;
   task.result = report;
   task.summary = clip(reportSummary(report), 140);
   setTaskStatus(task, '완료', 100);
-  pushMsg({ who:m.id, text:'사장님, 정리해서 올립니다! 확인해 주세요 📬' });
+  if (aiReport) pushMsg({ who:m.id, text:'사장님, 정리해서 올립니다! 확인해 주세요 📬' });
   pushMsg({ kind:'result', who:m.id, taskId:task.id });
-  say(m, '완료했습니다!', 3000);
   spawnSparkles(m.x, m.y - 30, 10, m.color);
-  if (alive(leader()) && leader().id !== m.id) {
-    var momo = leader();
-    setTimeout(function(){
-      if (!alive(momo)) return;
-      pushMsg({ who:momo.id, text:m.name + '님 결과 확인했습니다. 깔끔하네요 👍' });
-      say(momo, '확인했습니다 👍', 2400);
-    }, 700);
-  }
   renderAll(); save();
   toast('결과 도착! 📬');
   setTimeout(function(){
@@ -3518,7 +3409,7 @@ async function runTask(task){
   } catch (e) {
     if (e !== 'abort') {
       pushMsg({ who:'system', text:'⚠️ 진행 중 오류: ' + (e && e.message ? e.message : '알 수 없는 오류') });
-      task.status = '대기';
+      task.status = '오류';
       renderTasks();
     }
   } finally {
@@ -3531,6 +3422,12 @@ async function runTask(task){
 }
 
 function queueTask(task){
+  /* 이 화면에서 AI가 실제로 응답할 수 있을 때만 실행한다.
+     없으면 가짜 대본을 돌리지 않고 이유를 알린다. */
+  if (!useRealAI()) {
+    holdNoAi(task, task.target === 'team' ? '팀' : (byId(task.target) ? byId(task.target).name : '비서'));
+    return;
+  }
   if (state.running) {
     state.queue.push(task);
     task.status = '대기';
@@ -3561,7 +3458,7 @@ var FB = {
 var localClientIds = {};
 
 function fbOn(){ return !!state.settings.db; }
-function fbLiveMode(){ return (state.settings.mode || 'instant') === 'live'; }
+function fbLiveMode(){ return (state.settings.mode || 'live') === 'live'; }
 function fbUrl(path){ return FB.base + path + '.json'; }
 
 function fbReq(path, opts){
@@ -3609,6 +3506,8 @@ function agentPayload(m){
     isLead: !!m.leader,
     zone: m.zone || m.homeZone || 'desk',
     status: st,
+    aiConnected: agentConnected(m),
+    connection: connectionLabel(m),
     bubble: (m.bubble && m.bubbleUntil > now) ? m.bubble : '',
     usage: m.usage || { used:0, limit:100, unit:'회' },
     updatedAt: now
@@ -3656,6 +3555,21 @@ function syncMessage(msg, type, target){
 }
 
 var taskSyncTimers = {};
+
+/* 피클 대기 모드에서 DB가 늦게 붙었을 때, 아직 전달되지 않은 지시를 다시 올린다 */
+function flushPendingLive(){
+  if (!fbOn() || !FB.online) return;
+  var now = Date.now();
+  state.tasks.forEach(function(t){
+    if (!t || !t.live || t.result) return;
+    if (t.status !== 'DB 전달') return;
+    if (now - (Number(t.createdAt) || 0) > 1000 * 60 * 3) return;
+    if (now - (t._liveAt || 0) < 7000) return;
+    t._liveAt = now;
+    syncTask(t, true);
+  });
+}
+
 function syncTask(task, now){
   if (!fbOn() || !task) return;
   task._syncedAt = Date.now();
@@ -3685,13 +3599,6 @@ function seedDb(){
     map[m.id] = p;
   });
   fbPatch('/agents', map).then(function(){
-    var w = {
-      senderId: 'momo', senderName: '모모', senderColor: '#8ed7f5', target: 'team',
-      text: '🧹 가상 오피스가 열렸습니다. 사장님, 지시를 기다리고 있어요!',
-      type: 'system', createdAt: Date.now(), clientId: 'seed_welcome'
-    };
-    return fbPost('/messages', w);
-  }).then(function(){
     fbPatch('/meta', { seededAt: Date.now(), app: 'pickle-virtual-office' }).catch(function(){});
   }).catch(function(e){
     FB.seeded = false;
@@ -3736,6 +3643,8 @@ function applyRemoteAgents(map){
       if (state.selected === m.id) renderSelCard();
       renderTeam();
     }
+    /* 다른 곳에서 "연결됨"으로 표시했으면 그대로 인정한다 (한 번 true면 유지) */
+    if (a.aiConnected === true || a.connected === true) m.remoteConnected = true;
 
     var stamp = Number(a.updatedAt) || 0;
     if (stamp && m._remoteStamp && stamp <= m._remoteStamp) {
@@ -3886,6 +3795,7 @@ function pollDb(){
     if (agents) applyRemoteAgents(agents);
     if (messages) applyRemoteMessages(messages);
     if (tasks) applyRemoteTasks(tasks);
+    flushPendingLive();
     if (workouts && Object.keys(workouts).length) {
       mergeWorkouts(workouts);
       saveSoon();
@@ -3951,8 +3861,8 @@ function renderModeButton(){
   b.textContent = dot + (live ? '피클 대기' : '즉시 실행');
   b.classList.toggle('live', live);
   b.title = live
-    ? '지시를 Firebase로 보내고 실제 피클의 응답을 기다립니다. 누르면 즉시 실행으로 바뀝니다.'
-    : '이 브라우저에서 바로 시뮬레이션/AI를 돌립니다. 누르면 실제 피클 대기로 바뀝니다.';
+    ? '지시를 Firebase로 보내고 실제 피클(모모·송송)의 응답을 기다립니다. 누르면 즉시 실행으로 바뀝니다.'
+    : '⚙️ API 키가 있을 때만 이 브라우저에서 실제 AI로 일합니다 (가짜 대사 없음). 누르면 피클 대기로 바뀝니다.';
 }
 
 function toggleDb(){
@@ -3971,14 +3881,18 @@ function toggleDb(){
 
 function cycleRunMode(){
   state.settings.mode = fbLiveMode() ? 'instant' : 'live';
+  state.settings.modeV = 2;
   save();
   renderModeButton();
   renderSettings();
+  renderMode();
   if (state.settings.mode === 'live') {
     if (!fbOn()) { state.settings.db = true; startDbPolling(); }
-    toast('실제 피클 대기 모드 — 지시는 Firebase로 전달됩니다 🕓');
+    toast('🕓 피클 대기 — 지시는 실제 피클에게 Firebase로 전달됩니다');
   } else {
-    toast('즉시 실행 모드 — 이 화면에서 바로 일합니다 ⚡');
+    toast(useRealAI()
+      ? '⚡ 즉시 실행 — 이 화면에서 실제 AI가 일합니다'
+      : '⚡ 즉시 실행 — ⚙️에 API 키가 없어 비서들이 응답할 수 없습니다');
   }
 }
 
@@ -4258,7 +4172,8 @@ function exportAll(){
   L.push('');
   L.push('- 내보낸 시각: ' + new Date().toLocaleString('ko-KR'));
   L.push('- 팀: ' + state.members.map(function(m){ return m.name + '(' + m.role + ')'; }).join(', '));
-  L.push('- 모드: ' + (useRealAI() ? '실제 AI 연동 (' + state.settings.provider + ')' : '시뮬레이션'));
+  L.push('- 모드: ' + (fbLiveMode() ? '🕓 피클 대기 (Firebase 전달)' : (useRealAI() ? '⚡ 즉시 실행 · 실제 AI 연동' : '⚡ 즉시 실행 · AI 미연결')));
+  L.push('- 연결: ' + state.members.map(function(m){ return m.name + '(' + connectionLabel(m) + ')'; }).join(', '));
   L.push('');
   L.push('## 팀 챗');
   L.push('');
@@ -4301,17 +4216,23 @@ function callMember(id){
   var m = byId(id);
   if (!m) return;
   selectMember(id);
-  if (state.running) {
-    say(m, '지금 일하는 중이에요! 끝나면 바로 갈게요 🙏', 3200);
-    pushMsg({ who:m.id, text:'사장님, 지금 맡은 일 하는 중이에요. 끝나면 바로 달려갈게요!' });
+
+  /* 미연결 비서는 대사를 지어내지 않고 사실만 알린다 */
+  if (!agentConnected(m)) {
+    pushMsg({ who:'system', text: noAiNoticeText(m.name) });
+    toast(m.name + '는 미연결 상태입니다');
     return;
   }
+
   setState(m, 'called');
   walkTo(m, 'report', 0).then(function(){
-    if (!alive(m)) return;
-    say(m, '사장님, 부르셨어요? 무엇을 도와드릴까요?', 4200);
+    if (alive(m)) setState(m, 'idle');
   });
-  pushMsg({ who:m.id, text:'사장님, 부르셨어요? 무엇을 도와드릴까요?' });
+  pushMsg({ who:'system', text:'📣 ' + m.name + '님을 불렀습니다.' +
+    (isPickleConnected(m) ? ' 응답은 실시간 DB로 옵니다.' : '') });
+  if (isPickleConnected(m) && typeof fbOn === 'function' && fbOn() && typeof syncMessage === 'function') {
+    syncMessage({ id: uid('call'), who:'user', text:'📣 ' + m.name + '님 호출', ts: Date.now() }, 'call', m.id);
+  }
   setTimeout(function(){
     if (!alive(m) || state.running) return;
     if (m.state === 'called') {
@@ -4411,6 +4332,38 @@ function submitTask(e){
     }
   }
 
+  var live = (typeof fbLiveMode === 'function') ? fbLiveMode() : false;
+  var tm = target === 'team' ? null : byId(target);
+
+  function showRefusal(notice){
+    pushMsg({ who:'user', text:text, noSync:true });
+    pushMsg({ who:'system', text:notice });
+    if (isNarrow()) setMobileView('chat'); else selectTab('chat');
+    renderAll(); save();
+  }
+
+  /* ── 1) 1:1 대상이 미연결이면 가짜 응답을 만들지 않고 그대로 알린다 ── */
+  if (tm && !agentConnected(tm)) {
+    showRefusal(noAiNoticeText(tm.name));
+    toast(tm.name + '는 미연결 상태입니다');
+    return;
+  }
+
+  /* ── 2) 피클 대기 모드: Firebase로만 보낸다 (로컬 시뮬레이션 없음) ── */
+  if (live && !fbOn()) {
+    showRefusal('📡 실시간 DB가 꺼져 있어 실제 피클에게 지시를 전달할 수 없습니다. 상단 DB 배지를 눌러 켜주세요.');
+    toast('실시간 DB가 꺼져 있습니다');
+    return;
+  }
+
+  /* ── 3) 즉시 실행 모드: 이 화면에서 실제 AI로 일할 수 있을 때만 실행 ── */
+  if (!live && !useRealAI()) {
+    showRefusal('🔌 이 화면에서 바로 실행하려면 ⚙️ 설정에 Gemini 또는 OpenAI API 키가 필요합니다. ' +
+      '지금은 🕓 피클 대기 모드로 보내면 실제 피클(모모·송송)이 처리합니다.');
+    toast('AI 키가 연결되지 않았습니다');
+    return;
+  }
+
   input.value = '';
   input.placeholder = '사장님, 무슨 일이든 시켜주세요…';
   var um = pushMsg({ who:'user', text:text, noSync:true });
@@ -4426,18 +4379,22 @@ function submitTask(e){
   if (target !== 'team') selectMember(target);
   if (isNarrow()) setMobileView('chat'); else selectTab('chat');
   renderAll(); save();
-  if (typeof syncTask === 'function') syncTask(task, true);
 
-  /* 실제 피클 대기 모드 + DB 연결됨 → 로컬 시뮬레이션 없이 DB로 넘긴다 */
-  if (typeof fbOn === 'function' && fbOn() && fbLiveMode() && FB.online) {
+  if (live) {
+    task.live = true;
+    task._liveAt = Date.now();
     task.status = 'DB 전달';
     task.progress = 10;
     if (typeof syncTask === 'function') syncTask(task, true);
-    pushMsg({ who:'system', text:'📡 실제 피클에게 지시를 보냈습니다. 응답이 오면 여기에 표시됩니다.' });
+    var off = unconnectedMembers().map(function(m){ return m.name; }).join('·');
+    pushMsg({ who:'system', text:'📡 실제 피클에게 지시를 보냈습니다. 응답이 오면 여기에 표시됩니다.' +
+      (off ? ' (🔌 미연결: ' + off + ' — 참여하지 않습니다)' : '') });
     renderAll(); save();
     toast('실제 피클에게 전달했어요 📡');
     return;
   }
+
+  if (typeof syncTask === 'function') syncTask(task, true);
   queueTask(task);
 }
 
@@ -4445,11 +4402,14 @@ function submitTask(e){
    28. 첫 인사
    ══════════════════════════════════════════════════════════ */
 function welcomeMessages(){
-  pushMsg({ who:'system', text:'🧹 사무실 오픈! 팀장 모모와 비서 ' + Math.max(0, state.members.length - 1) + '명이 출근했습니다.' });
-  if (alive(leader())) {
-    pushMsg({ who:leader().id, text:'사장님, 안녕하세요! 팀장 모모입니다. 아래 입력창에 일을 적어주시면 회의 → 작업 → 보고까지 팀이 알아서 합니다. 캐릭터를 누르면 한 명만 불러서 1:1로 일을 맡길 수도 있어요!' });
+  pushMsg({ who:'system', noSync:true, text:'🧹 사무실 오픈! 팀장 모모와 비서 ' + Math.max(0, state.members.length - 1) + '명이 출근했습니다.' });
+  pushMsg({ who:'system', noSync:true, text: fbLiveMode()
+    ? '🕓 피클 대기 모드입니다. 지시는 실제 피클(모모·송송)에게 Firebase로 전달되고, 응답이 오면 여기에 표시됩니다.'
+    : '⚡ 즉시 실행 모드입니다. ⚙️에 API 키를 넣은 비서만 이 화면에서 실제 AI로 응답합니다.' });
+  var off = unconnectedMembers().map(function(m){ return m.name; }).join('·');
+  if (off) {
+    pushMsg({ who:'system', noSync:true, text:'🔌 ' + off + '는 아직 AI가 연결되지 않아 미연결 상태로 자리에 대기합니다 (응답하지 않음).' });
   }
-  pushMsg({ who:'system', text:'💡 지금은 시뮬레이션 모드예요. ⚙️ 설정에서 Gemini 또는 OpenAI 키를 넣으면 실제 AI가 회의하고 일합니다.' });
 }
 
 /* ══════════════════════════════════════════════════════════
