@@ -1804,7 +1804,7 @@ function stateInfo(m){
 function pillMetrics(m, u){
   var cs = layout ? layout.charScale : 1;
   var info = stateInfo(m);
-  var compact = layout && layout.scale < 0.62;
+  var compact = layout && (layout.scale < 0.62 || layout.key === 'tall');
   var linkOff = !agentConnected(m);
   var txt = linkOff
     ? (compact ? '🔌' + m.name : '🔌 ' + m.name + ' · 미연결')
@@ -1946,7 +1946,9 @@ function drawChar(m, t){
   if (m.leader) drawCrown(x, y - h - 7 * cs, cs * 0.95);
 
   var small = layout.scale < 0.62 || layout.key === 'tall';
-  if (!(small && m.state === 'idle' && m.id !== state.selected)) drawStatusPill(m, uiScale());
+  /* 좁은 화면에서도 미연결 비서는 🔌 표시를 항상 보여준다 */
+  var hidePill = small && m.state === 'idle' && m.id !== state.selected && agentConnected(m);
+  if (!hidePill) drawStatusPill(m, uiScale());
 }
 
 function wrapLines(text, maxW, fs){
@@ -2786,13 +2788,11 @@ function saveHire(){
   var deskSlots = state.members.filter(function(x){ return !x.leader; }).length - 1;
   setTimeout(function(){
     actor.state = 'idle';
-    say(actor, '안녕하세요! 오늘부터 잘 부탁드려요 🙇', 3200);
     walkTo(actor, 'desk', deskSlots % 4);
   }, 120);
   pushMsg({ who:'system', text:'🎉 새 비서 ' + name + '님이 입사했습니다! (' + role + ')' });
-  if (alive(leader())) {
-    var m2 = leader();
-    setTimeout(function(){ say(m2, name + '님 어서 오세요! 자리는 협업 데스크예요 👋', 3000); }, 900);
+  if (!agentConnected(actor)) {
+    pushMsg({ who:'system', text:'🔌 ' + name + '님은 아직 AI가 연결되지 않았습니다. ⚙️에서 API 키를 연결하면 응답합니다.' });
   }
   if (typeof syncAgentOne === 'function') syncAgentOne(actor);
   renderAll(); save();
@@ -4676,13 +4676,10 @@ function boot(){
   startAmbient();
   setInterval(renderMini, 900);
 
-  /* 첫 방문 안내 */
+  /* 첫 방문 안내 — 모모에게 대사를 지어내지 않고 반짝임만 */
   if (isNew) {
     setTimeout(function(){
-      if (alive(leader())) {
-        say(leader(), '사장님, 여기 제 자리예요! 👑', 3000);
-        spawnSparkles(leader().x, leader().y - 30, 8, '#ffd24d');
-      }
+      if (alive(leader())) spawnSparkles(leader().x, leader().y - 30, 8, '#ffd24d');
     }, 900);
   }
 }
