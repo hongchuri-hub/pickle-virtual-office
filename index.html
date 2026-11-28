@@ -5194,6 +5194,8 @@ function artWhen(ts){
   return fmtDate(t) + ' ' + fmtTime(t);
 }
 function isDataUrl(u){ return /^data:[a-z]+\//i.test(String(u || '')); }
+/* 결과물 주소로 허용하는 것: https 주소, 작은 이미지·영상의 data URL */
+function isSafeArtUrl(u){ return /^(https?:\/\/|data:(image|video)\/)/i.test(String(u || '')); }
 function isDirectVideo(u){
   var s = String(u || '');
   if (/^data:video\//i.test(s)) return true;
@@ -5239,6 +5241,7 @@ function downloadName(a){
 function normArtifact(src, key){
   if (!src || typeof src !== 'object') return null;
   var url = String(src.url || src.resultUrl || src.href || '').trim();
+  if (url && !isSafeArtUrl(url)) url = '';
   var type = guessArtType(url, src.type);
   var title = String(src.title || src.name || '').trim();
   var id = String(src.id || key || artId());
@@ -5278,7 +5281,7 @@ function attachmentsOf(t){
     var x = list[i];
     if (!x) continue;
     var url = String(x.url || x.href || x.src || '').trim();
-    if (!url) continue;
+    if (!url || !isSafeArtUrl(url)) continue;
     var ty = guessArtType(url, x.type);
     var nm = String(x.name || x.title || '').trim();
     out.push({
@@ -5288,7 +5291,7 @@ function attachmentsOf(t){
       fromRemote: true
     });
   }
-  if (t.resultUrl) {
+  if (t.resultUrl && isSafeArtUrl(t.resultUrl)) {
     var rty = guessArtType(t.resultUrl, t.resultType || '');
     out.push({
       id: (t.id || 't') + '_res', type: rty, url: String(t.resultUrl),
