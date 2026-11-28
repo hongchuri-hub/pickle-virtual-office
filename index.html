@@ -580,6 +580,117 @@ input,textarea,select{font:inherit;color:inherit}
 .doc li.ck i{width:14px;height:14px;border:1.5px solid #d5c8b0;border-radius:4px;display:block;flex:0 0 auto;margin-top:3px;background:#fff}
 .doc a{color:#4a8dbf}
 
+/* 문서 모달의 첨부 */
+.docattach{margin:0 0 12px;padding:9px 11px;background:#fbf7ee;border:1px solid #f1e5cb;border-radius:14px}
+.docattach b{font-size:11px;color:#8a7357}
+.docattach-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}
+.docattach-item{display:flex;flex-direction:column;gap:3px;width:76px;border:1px solid #ece0cb;background:#fff;border-radius:10px;padding:4px;font-size:9.5px;color:#7d6a56;text-align:center;overflow:hidden}
+.docattach-item img{width:100%;height:56px;object-fit:cover;border-radius:7px;display:block}
+.docattach-item i{font-size:20px;font-style:normal;line-height:1.6}
+.docattach-item span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── 결과물 탭 (이미지 · 영상 · 링크 · 파일) ──────────── */
+.docbar{
+  position:sticky;top:-13px;z-index:4;
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap;
+  margin:-13px -13px 0;padding:10px 13px 9px;
+  background:rgba(255,253,249,.97);backdrop-filter:blur(8px);
+  border-bottom:1px solid #f1e6d6;
+}
+.docchips{display:flex;gap:5px;overflow-x:auto;flex:1 1 auto;min-width:0;padding-bottom:1px;scrollbar-width:none}
+.docchips::-webkit-scrollbar{display:none}
+.docchip{
+  display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
+  border:1px solid #efe3d1;background:#fdf8ef;border-radius:999px;
+  padding:5px 9px;font-size:11px;font-weight:800;color:#8d7c68;
+}
+.docchip em{font-style:normal;font-size:9.5px;font-weight:800;color:#b0a08b;background:#fff;border-radius:999px;padding:0 5px;min-width:16px;text-align:center}
+.docchip.on{background:linear-gradient(180deg,#fde6ea,#f7cdd4);border-color:#f3c2ca;color:#a85a66}
+.docchip.on em{color:#a85a66}
+.docadd{
+  margin-left:auto;border:0;border-radius:999px;padding:7px 11px;font-size:11.5px;font-weight:800;color:#fff;
+  background:linear-gradient(180deg,#f8b3bd 0%,#ee8f9f 55%,#e9879a 100%);
+  box-shadow:0 6px 14px rgba(226,132,146,.30), inset 0 1px 2px rgba(255,255,255,.5);
+  white-space:nowrap;
+}
+.docgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:9px}
+.acard{display:flex;flex-direction:column;background:#fff;border:1px solid #f0e5d6;border-radius:16px;overflow:hidden;box-shadow:0 3px 10px rgba(150,116,80,.06)}
+.athumb{
+  position:relative;display:block;width:100%;aspect-ratio:4 / 3;border:0;padding:0;
+  background:#f7f0e4 center/cover no-repeat;overflow:hidden;cursor:pointer;text-decoration:none;
+}
+.athumb img{width:100%;height:100%;object-fit:cover;display:block}
+.athumb video{width:100%;height:100%;object-fit:cover;display:block;background:#241c16}
+.athumb .atag{
+  position:absolute;left:6px;top:6px;font-size:9.5px;font-weight:800;color:#6b5646;
+  background:rgba(255,253,249,.93);border-radius:999px;padding:2px 7px;
+}
+.athumb.yt{display:grid;place-items:center}
+.athumb.yt .play{
+  width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(255,255,255,.94);color:#e0564f;font-size:15px;padding-left:2px;
+  box-shadow:0 6px 16px rgba(0,0,0,.22);
+}
+.athumb.lk,.athumb.rp{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:linear-gradient(165deg,#fdf8ef,#f6eee0)}
+.athumb.lk .big,.athumb.rp .big{font-size:22px;line-height:1}
+.athumb.lk .host,.athumb.rp .host{font-size:10px;font-weight:800;color:#957f68;max-width:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ameta{padding:8px 9px 9px;display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 auto}
+.atitle{font-size:12px;font-weight:800;color:#3f3026;line-height:1.32;word-break:break-word;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.atext{font-size:10.5px;color:#93826e;line-height:1.4;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.asub{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:10px;color:#a4927c}
+.asender{font-weight:800;color:#7e6a56;background:#f7f1e6;border-radius:999px;padding:1px 6px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.atime{font-size:9.5px;color:#b2a28e}
+.ataskrow{margin-top:1px}
+.atask{display:block;width:100%;text-align:left;border:0;background:#f6f9f4;border-radius:8px;padding:3px 6px;font-size:10px;font-weight:700;color:#6e8568;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aacts{display:flex;gap:4px;flex-wrap:wrap;margin-top:auto}
+.abtn{
+  flex:1 1 auto;text-align:center;text-decoration:none;
+  border:1px solid #eee2cf;background:#fdf9f2;border-radius:8px;padding:4px 6px;
+  font-size:10.5px;font-weight:800;color:#7d6a56;white-space:nowrap;
+}
+.abtn.primary{background:linear-gradient(180deg,#fff0f2,#fde3e7);border-color:#f6d5da;color:#a85665}
+
+/* 보고 카드 안의 첨부 */
+.rchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;align-items:center}
+.rchip{
+  border:1px solid #e4ebdd;background:#fff;border-radius:10px;padding:3px 7px;
+  font-size:10.5px;font-weight:800;color:#6d7f65;max-width:100%;overflow:hidden;text-overflow:ellipsis;
+}
+.rchip.img{padding:0;border-radius:9px;overflow:hidden;width:46px;height:46px;display:block}
+.rchip.img img{width:46px;height:46px;object-fit:cover;display:block}
+.rchip.more{background:#f4f1ea;color:#94826d}
+
+/* 결과물 올리기 */
+.artprev{background:#fbf7ee;border:1px dashed #e6d8bf;border-radius:12px;padding:8px;text-align:center}
+.artprev img{max-width:100%;max-height:180px;border-radius:9px;display:inline-block}
+.filebox{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fname{font-size:11px;color:#a0917c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:62%}
+.atthumb,.atthumb:hover{text-decoration:none}
+.frow input[type=file]{width:100%;font-size:12px;color:#8d7c68;background:#fff;border:1px solid #ebdfc9;border-radius:13px;padding:9px 11px}
+
+/* 전체 화면 미리보기 */
+.lightbox{
+  position:fixed;inset:0;z-index:95;display:none;flex-direction:column;
+  background:rgba(28,21,15,.93);backdrop-filter:blur(6px);
+  padding:14px calc(14px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
+}
+.lightbox.on{display:flex;animation:pop .18s ease both}
+.lb-top{display:flex;align-items:center;gap:10px;color:#fff8ee;min-height:34px}
+.lb-top b{font-size:13.5px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-x{margin-left:auto;border:0;background:rgba(255,255,255,.14);color:#fff;width:34px;height:34px;border-radius:50%;font-size:18px;line-height:1;flex:0 0 auto}
+.lb-body{flex:1;min-height:0;display:grid;place-items:center;padding:10px 0}
+.lbimg{max-width:100%;max-height:100%;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.45);object-fit:contain;background:#120e0a}
+.lb-foot{display:flex;align-items:center;gap:6px;justify-content:center;flex-wrap:wrap;padding-top:4px}
+.lbbtn{
+  border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.10);color:#fff8ee;
+  border-radius:999px;padding:8px 13px;font-size:12px;font-weight:800;text-decoration:none;
+}
+.lbbtn[disabled]{opacity:.35}
+.lbbtn.primary{background:linear-gradient(180deg,#f8b3bd,#ee8f9f);border-color:transparent;color:#fff}
+.lbn{color:#e6d9c8;font-size:11.5px;font-weight:800;padding:0 4px}
+
 /* 토스트 */
 #toasts{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
 .toast{
@@ -597,6 +708,12 @@ input,textarea,select{font:inherit;color:inherit}
 }
 @media (max-width:1279px){
   .badges{display:none}
+}
+
+@media (min-width:900px){
+  /* 결과물 탭은 사진을 보기 좋게 사이드를 넓혀 쓴다 */
+  body[data-tab="docs"] .app{grid-template-columns:minmax(0,1fr) clamp(430px,42vw,600px)}
+  body[data-tab="docs"] .docgrid{grid-template-columns:repeat(auto-fill,minmax(152px,1fr))}
 }
 
 /* ── 모바일 ─────────────────────────────────────────── */
@@ -671,6 +788,11 @@ input,textarea,select{font:inherit;color:inherit}
   .msgs{padding:10px 11px 4px}
   .msg .bub{font-size:13px}
   .list{padding:11px}
+  .docbar{top:-11px;margin:-11px -11px 0;padding:9px 11px 8px}
+  .docgrid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px}
+  .docchip{padding:6px 9px;font-size:11.5px}
+  .docadd{padding:8px 12px;font-size:12px}
+  .lbimg{border-radius:12px}
 
   .composer{
     grid-area:4/1;margin:8px 0 0;padding:8px;
@@ -1031,6 +1153,54 @@ input,textarea,select{font:inherit;color:inherit}
   </div>
 </div>
 
+<!-- ══ 결과물 크게 보기 ══ -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="결과물 크게 보기">
+  <div class="lb-top">
+    <b id="lbTitle">결과물</b>
+    <button type="button" class="lb-x" data-lbclose="1" aria-label="닫기">×</button>
+  </div>
+  <div class="lb-body" id="lbBody"></div>
+  <div class="lb-foot" id="lbFoot"></div>
+</div>
+
+<!-- ══ 결과물 올리기 ══ -->
+<div class="modal" id="modalArtifact" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <h3>＋ 결과물 올리기</h3>
+    <p class="desc">이미지 파일은 자동으로 줄여(250KB 이하) 사무실 DB에 올립니다. 링크는 주소만 붙여넣으면 미리보기 카드가 됩니다.</p>
+    <div class="frow">
+      <label for="artTitle">제목</label>
+      <input type="text" id="artTitle" maxlength="60" placeholder="예: 쿠팡 상세페이지 시안">
+    </div>
+    <div class="frow">
+      <label for="artFile">이미지 파일</label>
+      <div class="filebox">
+        <input type="file" id="artFile" accept="image/*" hidden>
+        <button type="button" class="btn" data-artfile="1">🖼 이미지 고르기</button>
+        <span class="fname" id="artFileName">선택된 파일 없음</span>
+      </div>
+      <div class="hint" id="artFileHint">JPG · PNG · WebP · GIF — 고르면 자동으로 줄여 올립니다 (250KB 이하).</div>
+    </div>
+    <div class="frow">
+      <label for="artUrl">또는 링크 주소</label>
+      <input type="text" id="artUrl" placeholder="https://… (유튜브 · 드라이브 · 이미지 · PDF)">
+      <div class="hint">이미지 주소는 미리보기, 유튜브는 영상 카드로 보입니다.</div>
+    </div>
+    <div class="frow">
+      <label for="artWho">올린 사람</label>
+      <select id="artWho"><option value="owner">👔 사장님</option></select>
+    </div>
+    <div class="frow" id="artPrevRow" hidden>
+      <label>미리보기</label>
+      <div class="artprev" id="artPrev"></div>
+    </div>
+    <div class="acts-end">
+      <button type="button" class="btn" data-close>취소</button>
+      <button type="button" class="btn primary" id="btnArtSave">올리기</button>
+    </div>
+  </div>
+</div>
+
 <div id="toasts"></div>
 
 <!-- 클레이 오피스 배경 (빌드 시 base64로 채워짐) -->
@@ -1208,6 +1378,8 @@ var state = {
   workouts: null,      /* 'YYYY-MM-DD' -> {intensity, label, workouts[], metrics, gemini} */
   gymMonth: '',
   gymDay: '',
+  artifacts: [],       /* 결과물 — {id,type,url,title,text,agentId,agentName,taskId,createdAt,fromRemote} */
+  docFilter: 'all',    /* 결과물 탭 필터: all|image|video|link|file|report */
   counter: 0
 };
 
@@ -1367,13 +1539,29 @@ function save(){
       chat: state.chat.slice(-MAX_CHAT),
       tasks: state.tasks.slice(0, MAX_TASKS).map(function(t){
         return { id:t.id, text:t.text, target:t.target, status:t.status, createdAt:t.createdAt,
-                 steps:t.steps, result:t.result, cat:t.cat, progress:t.progress, live:!!t.live };
+                 steps:t.steps, result:t.result, cat:t.cat, progress:t.progress, live:!!t.live,
+                 attachments: t.attachments || null, resultUrl: t.resultUrl || '',
+                 resultType: t.resultType || '', resultTitle: t.resultTitle || '', confirmed: !!t.confirmed };
       }),
       settings: { speed:state.settings.speed, provider:state.settings.provider,
                   model:state.settings.model, real:state.settings.real,
                   db:state.settings.db, mode:state.settings.mode, modeV:2,
                   cleanV:Number(state.settings.cleanV) || 1 },
       workouts: state.workouts || null,
+      artifacts: (function(){
+        var list = state.artifacts || [], out = [], dataKept = 0;
+        for (var i = list.length - 1; i >= 0 && out.length < 40; i--) {
+          var a = list[i];
+          if (!a || !a.url) continue;
+          var isData = /^data:/i.test(a.url);
+          if (isData && dataKept >= 4) continue;      /* 큰 dataURL은 최근 4개만 로컬 보관 (DB가 원본) */
+          if (isData) dataKept++;
+          out.unshift({ id:a.id, type:a.type, url:a.url, title:a.title, text:a.text,
+                        agentId:a.agentId, agentName:a.agentName, taskId:a.taskId,
+                        createdAt:a.createdAt, key:a.key || '', fromRemote:true });
+        }
+        return out;
+      })(),
       counter: state.counter
     };
     localStorage.setItem(STORE_KEY, JSON.stringify(data));
@@ -1630,6 +1818,14 @@ function loadState(){
         }
         state.counter = d.counter || 0;
         if (d.workouts && typeof d.workouts === 'object') state.workouts = d.workouts;
+        state.artifacts = Array.isArray(d.artifacts) ? d.artifacts.filter(function(a){
+          return a && typeof a === 'object' && a.url;
+        }).map(function(a){
+          return { id:String(a.id || ''), type:a.type || 'link', url:String(a.url), title:String(a.title || ''),
+                   text:String(a.text || ''), agentId:String(a.agentId || ''), agentName:String(a.agentName || ''),
+                   taskId:String(a.taskId || ''), createdAt:Number(a.createdAt) || 0,
+                   key:String(a.key || ''), fromRemote:true };
+        }) : [];
         return true;
       }
     } catch (e) {}
@@ -3142,10 +3338,11 @@ function msgHtml(m){
     var summary = t.summary || reportSummary(t.result);
     var acked = t.confirmed || m.confirmed;
     var owner = t.target === 'team' ? (leader() ? leader().id : 'system') : t.target;
+    var chips = (typeof artifactChipsHtml === 'function') ? artifactChipsHtml(t) : '';
     return '<div class="rcard' + fresh + (acked ? ' acked' : '') + '"><div class="rh">' +
       (acked ? '✅ 확인 완료 · ' : '📬 보고 도착 · ') + esc(fmtTime(m.ts)) + '</div>' +
       '<div class="rb"><div class="rt">' + esc(clip(t.text, 60)) + '</div>' +
-      '<div class="rs">' + esc(clip(summary, 110)) + '</div></div>' +
+      '<div class="rs">' + esc(clip(summary, 110)) + '</div>' + chips + '</div>' +
       '<div class="rf"><button class="btn mini primary" data-doc="' + esc(t.id) + '">결과물 열기</button>' +
       (acked ? '' : '<button class="btn mini ack" data-ack="' + esc(owner) + '|' + esc(t.id) + '">✅ 확인</button>') +
       '<button class="btn mini" data-copytask="' + esc(t.id) + '">복사</button></div></div>';
@@ -3359,6 +3556,8 @@ function renderTeam(){
 }
 
 function renderDocs(){
+  /* 결과물 탭은 이미지·영상·링크·파일·보고서를 한 그리드로 그린다 (app.part5d) */
+  if (typeof renderDocsView === 'function') { renderDocsView(); return; }
   var box = $('#docList');
   if (!box) return;
   var done = state.tasks.filter(function(t){ return !!t.result; });
@@ -4240,6 +4439,7 @@ var FB = {
   seen: {},
   seeded: false,
   firstPull: true,
+  artTick: 0,
   lastError: '',
   lastSyncAt: 0
 };
@@ -4563,19 +4763,24 @@ function applyRemoteTasks(map){
     var r = map[id];
     if (!r || typeof r !== 'object') return false;
     if (!String(r.title || r.text || '').trim()) return false;
+    var hasAtt = (Array.isArray(r.attachments) && r.attachments.length) || r.resultUrl;
     var age = nowTs - (Number(r.createdAt) || 0);
-    if (age > 1000 * 60 * 60 * 24) return false;                 /* 하루 지난 업무는 가져오지 않음 */
-    if (!r.result && age > 1000 * 60 * 60 * 2) return false;      /* 결과 없이 2시간 지난 업무도 제외 */
+    /* 결과물(첨부·결과 링크)이 붙은 업무는 일주일까지 결과물 탭에 남긴다 */
+    if (age > (hasAtt ? 1000 * 60 * 60 * 24 * 7 : 1000 * 60 * 60 * 24)) return false;
+    if (!r.result && !hasAtt && age > 1000 * 60 * 60 * 2) return false;
     return true;
   }).sort(function(a, b){
     return (Number(map[b].createdAt) || 0) - (Number(map[a].createdAt) || 0);
-  }).slice(0, 12);
+  }).slice(0, 16);
 
   ids.forEach(function(id){
     var r = map[id];
     var title = String(r.title || r.text || '').trim();
     if (!title) return;
     var t = findTask(id);
+    var atts = Array.isArray(r.attachments) ? r.attachments.filter(function(x){
+      return x && (x.url || x.href) && typeof x === 'object';
+    }) : [];
     if (!t) {
       t = {
         id: id, text: title, target: r.assignedTo || 'team',
@@ -4604,6 +4809,19 @@ function applyRemoteTasks(map){
         renderTasks();
       }
     }
+    /* 업무에 붙은 이미지·링크·파일은 결과물 탭과 보고 카드에 그대로 뜨다 */
+    if (atts.length) {
+      if (JSON.stringify(t.attachments || []) !== JSON.stringify(atts)) {
+        t.attachments = atts;
+        renderDocs();
+      }
+    }
+    if (r.resultUrl && t.resultUrl !== r.resultUrl) {
+      t.resultUrl = String(r.resultUrl);
+      t.resultType = r.resultType || '';
+      t.resultTitle = r.resultTitle || r.resultName || '';
+      renderDocs();
+    }
   });
 }
 
@@ -4611,20 +4829,24 @@ function pollDb(){
   if (!fbOn() || FB.busy) return;
   FB.busy = true;
   if (!FB.online) { FB.checking = true; renderDbBadge(); }
-  Promise.all([fbReq('/agents'), fbReq('/messages'), fbReq('/tasks'), fbReq('/workouts')]).then(function(res){
+  /* 결과물에는 이미지(base64)가 섞이므로 10초에 한 번만 받아 온다 (첫 회는 바로) */
+  var wantArt = (FB.artTick++ % 4 === 0);
+  Promise.all([fbReq('/agents'), fbReq('/messages'), fbReq('/tasks'), fbReq('/workouts'),
+               wantArt ? fbReq('/artifacts') : Promise.resolve(null)]).then(function(res){
     var wasOffline = !FB.online;
     FB.online = true;
     FB.busy = false;
     FB.checking = false;
     FB.lastSyncAt = Date.now();
     FB.lastError = '';
-    var agents = res[0], messages = res[1], tasks = res[2], workouts = res[3];
+    var agents = res[0], messages = res[1], tasks = res[2], workouts = res[3], artifacts = res[4];
     if (!agents || !Object.keys(agents).length || !agents.momo) {
       seedDb();
     }
     if (agents) applyRemoteAgents(agents);
     if (messages) applyRemoteMessages(messages);
     if (tasks) applyRemoteTasks(tasks);
+    if (artifacts && typeof applyRemoteArtifacts === 'function') applyRemoteArtifacts(artifacts);
     flushPendingLive();
     if (workouts && Object.keys(workouts).length) {
       mergeWorkouts(workouts);
@@ -4648,6 +4870,7 @@ function pollDb(){
 function startDbPolling(){
   if (FB.timer) { clearInterval(FB.timer); FB.timer = null; }
   if (!fbOn()) { FB.online = false; renderDbBadge(); return; }
+  FB.artTick = 0;
   pollDb();
   FB.timer = setInterval(pollDb, 2500);
 }
@@ -4728,6 +4951,7 @@ function cycleRunMode(){
 
 function syncNow(){
   if (!fbOn()) { toast('먼저 실시간 DB를 켜주세요'); return; }
+  FB.artTick = 0;
   pollDb();
   syncAgentsSoon();
   toast('동기화 중…');
@@ -4947,6 +5171,565 @@ function seedWorkouts(){
 
 
 /* ══════════════════════════════════════════════════════════
+   25c. 결과물(아티팩트) — 이미지 · 영상 · 링크 · 파일 · 보고서
+   DB 규격
+     /artifacts/{id}.json = { id, title, type:'image'|'video'|'link'|'file',
+                              url, text, agentId, agentName, taskId, createdAt }
+     /tasks/{id}.json     = { …, attachments:[{type,url,name}], resultUrl }
+   · url 은 https://… 또는 작은 이미지용 data:image/… (base64) 둘 다 된다.
+   · DB에서 받은 결과물은 fromRemote:true 로 표시해 절대 다시 POST하지 않는다.
+   ══════════════════════════════════════════════════════════ */
+var MAX_ARTIFACTS = 80;
+var IMG_DATA_MAX = 250 * 1024 * 4 / 3;          /* 250KB 바이너리 ≈ 333K dataURL 글자 */
+var ART_LABEL = { image:'이미지', video:'영상', link:'링크', file:'파일', report:'보고서' };
+var ART_ICON  = { image:'🖼', video:'🎬', link:'🔗', file:'📄', report:'📝' };
+
+function artId(){ return 'a_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1679616).toString(36); }
+/* 카드용 짧은 시각: 오늘 12:01 / 어제 11:41 / 11월 25일 (화) 09:12 */
+function artWhen(ts){
+  var t = Number(ts) || 0;
+  if (!t) return '';
+  var d = new Date(t), n = new Date(), y = new Date(n.getTime() - 86400000);
+  if (d.getFullYear() === n.getFullYear() && d.getMonth() === n.getMonth() && d.getDate() === n.getDate()) return '오늘 ' + fmtTime(t);
+  if (d.getFullYear() === y.getFullYear() && d.getMonth() === y.getMonth() && d.getDate() === y.getDate()) return '어제 ' + fmtTime(t);
+  return fmtDate(t) + ' ' + fmtTime(t);
+}
+function isDataUrl(u){ return /^data:[a-z]+\//i.test(String(u || '')); }
+function isDirectVideo(u){
+  var s = String(u || '');
+  if (/^data:video\//i.test(s)) return true;
+  return /\.(mp4|webm|mov|m4v|ogv)(\?|#|$)/i.test(s);
+}
+function ytId(u){
+  var m = /(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i.exec(String(u || ''));
+  return m ? m[1] : '';
+}
+function isVideoHost(u){
+  return /(youtube\.com|youtu\.be|vimeo\.com|tv\.naver\.com|tiktok\.com|instagram\.com\/(reel|p)\/)/i.test(String(u || ''));
+}
+function hostOf(u){
+  var s = String(u || '');
+  if (/^data:/i.test(s)) return '올린 파일';
+  var m = /^https?:\/\/([^\/?#]+)/i.exec(s);
+  return m ? m[1].replace(/^www\./i, '') : clip(s, 30);
+}
+/* type 이 없거나 어긋나도 주소를 보고 알맞은 종류로 고친다 */
+function guessArtType(url, type){
+  var s = String(url || ''), t = String(type || '').toLowerCase();
+  if (/^data:image\//i.test(s)) return 'image';
+  if (/^data:video\//i.test(s)) return 'video';
+  if (/\.(png|jpe?g|gif|webp|avif|bmp|svg)(\?|#|$)/i.test(s)) return 'image';
+  if (isDirectVideo(s)) return 'video';
+  if (isVideoHost(s)) return 'video';
+  if (t === 'image' || t === 'video' || t === 'link' || t === 'file') return t;
+  if (/\.(pdf|docx?|xlsx?|pptx?|hwp|hwpx|zip|alz|csv|txt|md)(\?|#|$)/i.test(s)) return 'file';
+  return s ? 'link' : 'file';
+}
+function downloadName(a){
+  var base = String((a && a.title) || '결과물').replace(/[\\/:*?"<>|]+/g, ' ').trim() || '결과물';
+  var u = String((a && a.url) || '');
+  var m = /\.([a-z0-9]{2,5})(?:\?|#|$)/i.exec(u);
+  if (/^data:image\/jpe?g/i.test(u)) return base + '.jpg';
+  if (/^data:image\/png/i.test(u)) return base + '.png';
+  if (/^data:image\/webp/i.test(u)) return base + '.webp';
+  if (m) return base.indexOf('.') > 0 && base.slice(-5).indexOf(m[1]) >= 0 ? base : base + '.' + m[1];
+  return base;
+}
+
+/* ── 규격 맞추기 ───────────────────────────────────────── */
+function normArtifact(src, key){
+  if (!src || typeof src !== 'object') return null;
+  var url = String(src.url || src.resultUrl || src.href || '').trim();
+  var type = guessArtType(url, src.type);
+  var title = String(src.title || src.name || '').trim();
+  var id = String(src.id || key || artId());
+  return {
+    id: id,
+    key: String(key || src.key || ''),
+    type: type,
+    url: url,
+    title: title || (ART_LABEL[type] || '결과물'),
+    text: String(src.text || src.desc || src.note || ''),
+    agentId: String(src.agentId || src.senderId || src.author || ''),
+    agentName: String(src.agentName || src.senderName || src.authorName || ''),
+    taskId: String(src.taskId || ''),
+    createdAt: Number(src.createdAt || src.ts || 0) || Date.now(),
+    fromRemote: !!(src.fromRemote || key)
+  };
+}
+
+/* ── 보낸 사람 배지 ───────────────────────────────────── */
+function artSender(a){
+  var id = String((a && a.agentId) || '');
+  var m = id ? byId(id) : null;
+  if (m) return { emoji: m.emoji, name: m.name };
+  if (!id || id === 'owner') return { emoji: '👔', name: a.agentName || '사장님' };
+  if (id === 'momo') return { emoji: '👑', name: a.agentName || '모모' };
+  if (id === 'wife_pickle') return { emoji: '🌸', name: a.agentName || '송송' };
+  return { emoji: '📡', name: a.agentName || '외부 피클' };
+}
+
+/* ── 업무에 붙은 첨부 → 결과물 ─────────────────────────── */
+function attachmentsOf(t){
+  var out = [];
+  if (!t) return out;
+  var own = (t.target && t.target !== 'team') ? t.target : 'momo';
+  var list = Array.isArray(t.attachments) ? t.attachments : [];
+  for (var i = 0; i < list.length; i++) {
+    var x = list[i];
+    if (!x) continue;
+    var url = String(x.url || x.href || x.src || '').trim();
+    if (!url) continue;
+    var ty = guessArtType(url, x.type);
+    var nm = String(x.name || x.title || '').trim();
+    out.push({
+      id: (t.id || 't') + '_at' + i, type: ty, url: url,
+      title: nm || (ART_LABEL[ty] || '첨부'), text: String(x.text || ''),
+      agentId: own, agentName: '', taskId: t.id, createdAt: Number(t.createdAt) || 0,
+      fromRemote: true
+    });
+  }
+  if (t.resultUrl) {
+    var rty = guessArtType(t.resultUrl, t.resultType || '');
+    out.push({
+      id: (t.id || 't') + '_res', type: rty, url: String(t.resultUrl),
+      title: String(t.resultTitle || '결과 파일'), text: '',
+      agentId: own, agentName: '', taskId: t.id, createdAt: Number(t.createdAt) || 0,
+      fromRemote: true
+    });
+  }
+  return out;
+}
+
+function reportArtifact(t){
+  var own = (t.target && t.target !== 'team') ? t.target : 'momo';
+  return {
+    id: 'r_' + t.id, type: 'report', url: '', taskId: t.id, report: true,
+    title: t.text || '보고서', text: t.summary || (typeof reportSummary === 'function' ? reportSummary(t.result) : ''),
+    agentId: own, agentName: '', createdAt: Number(t.createdAt) || 0, fromRemote: true
+  };
+}
+
+/* 로컬 + DB + 업무첨부를 한 목록으로 (같은 주소·같은 업무는 한 번만) */
+function allArtifacts(){
+  var out = [];
+  var local = state.artifacts || [];
+  for (var i = 0; i < local.length; i++) {
+    var a = local[i];
+    if (!a) continue;
+    if (!a.url && a.type !== 'report') continue;
+    out.push(a);
+  }
+  var tasks = state.tasks || [];
+  for (var j = 0; j < tasks.length; j++) {
+    var ats = attachmentsOf(tasks[j]);
+    for (var k = 0; k < ats.length; k++) {
+      var x = ats[k], dup = false;
+      for (var q = 0; q < out.length; q++) {
+        if (out[q].url === x.url && out[q].taskId === x.taskId) { dup = true; break; }
+      }
+      if (!dup) out.push(x);
+    }
+  }
+  return out;
+}
+
+function findArtifact(id){
+  var local = state.artifacts || [];
+  for (var i = 0; i < local.length; i++) if (local[i] && local[i].id === id) return local[i];
+  var tasks = state.tasks || [];
+  for (var j = 0; j < tasks.length; j++) {
+    var ats = attachmentsOf(tasks[j]);
+    for (var k = 0; k < ats.length; k++) if (ats[k].id === id) return ats[k];
+  }
+  var reps = (state.tasks || []).filter(function(t){ return !!t.result; });
+  for (var r = 0; r < reps.length; r++) if ('r_' + reps[r].id === id) return reportArtifact(reps[r]);
+  return null;
+}
+
+/* ── DB 동기화 ──────────────────────────────────────────
+   받기: DB에서 온 결과물은 fromRemote:true 로 절대 되돌려 쓰지 않는다. */
+function applyRemoteArtifacts(map){
+  if (!map || typeof map !== 'object') return 0;
+  if (!state.artifacts) state.artifacts = [];
+  var added = 0;
+  Object.keys(map).forEach(function(k){
+    var raw = map[k];
+    if (!raw || typeof raw !== 'object') return;
+    var a = normArtifact(raw, k);
+    if (!a || (!a.url && a.type !== 'report')) return;
+    var have = null;
+    for (var i = 0; i < state.artifacts.length; i++) {
+      var x = state.artifacts[i];
+      if (!x) continue;
+      if (x.id === a.id || (x.key && x.key === k)) { have = x; break; }
+    }
+    if (have) {
+      have.fromRemote = true;
+      have.key = have.key || k;
+      if (a.url) have.url = a.url;
+      if (a.title && a.title !== ART_LABEL[a.type]) have.title = a.title;
+      if (a.text && !have.text) have.text = a.text;
+      if (a.taskId && !have.taskId) have.taskId = a.taskId;
+      if (a.createdAt) have.createdAt = have.createdAt || a.createdAt;
+      return;
+    }
+    a.fromRemote = true;
+    a.key = k;
+    state.artifacts.push(a);
+    added++;
+  });
+  if (added) {
+    state.artifacts.sort(function(x, y){ return (x.createdAt || 0) - (y.createdAt || 0); });
+    if (state.artifacts.length > MAX_ARTIFACTS) state.artifacts = state.artifacts.slice(-MAX_ARTIFACTS);
+    renderDocs();
+    saveSoon();
+  }
+  return added;
+}
+
+function artifactPayload(a){
+  return {
+    id: a.id, title: a.title, type: a.type, url: a.url, text: a.text || '',
+    agentId: a.agentId || '', agentName: a.agentName || '', taskId: a.taskId || '',
+    createdAt: a.createdAt || Date.now()
+  };
+}
+
+/* 보내기: 이 화면에서 만든 결과물만 올린다 (DB에서 받은 것은 fromRemote 로 걸러진다) */
+function syncArtifact(a){
+  if (!a || a.fromRemote || a.noSync) return null;
+  if (typeof fbOn !== 'function' || !fbOn()) return null;
+  return fbPost('/artifacts', artifactPayload(a)).then(function(res){
+    if (res && res.name) { a.key = res.name; a.fromRemote = true; }
+    return a;
+  }).catch(function(e){
+    if (typeof FB !== 'undefined') FB.lastError = e.message;
+    return null;
+  });
+}
+
+/* ── 만들기 · 올리기 ──────────────────────────────────── */
+function addArtifact(src){
+  var a = normArtifact(src, '');
+  if (!a || !a.url) return null;
+  a.fromRemote = false;
+  a.createdAt = Number(src && src.createdAt) || Date.now();
+  if (!state.artifacts) state.artifacts = [];
+  state.artifacts.push(a);
+  if (state.artifacts.length > MAX_ARTIFACTS) state.artifacts = state.artifacts.slice(-MAX_ARTIFACTS);
+  state.docFilter = 'all';
+  syncArtifact(a);
+  renderDocs();
+  saveSoon();
+  return a;
+}
+
+function typeCounts(){
+  var arts = allArtifacts().filter(function(a){ return a.type !== 'report'; });
+  var reps = (state.tasks || []).filter(function(t){ return !!t.result; }).length;
+  var c = { all: arts.length + reps, image: 0, video: 0, link: 0, file: 0, report: reps };
+  arts.forEach(function(a){ c[a.type] = (c[a.type] || 0) + 1; });
+  return c;
+}
+
+/* ── 카드 ────────────────────────────────────────────── */
+function artCardHtml(a){
+  var s = artSender(a);
+  var title = a.title || (ART_LABEL[a.type] || '결과물');
+  var when = artWhen(a.createdAt) || (fmtDate(a.createdAt) + ' ' + fmtTime(a.createdAt));
+  var u = esc(a.url || '');
+  var thumb = '', acts = '';
+  if (a.type === 'image') {
+    thumb = '<button type="button" class="athumb" data-artopen="' + esc(a.id) + '" aria-label="' + esc(title) + ' 크게 보기">' +
+      '<img src="' + u + '" alt="' + esc(title) + '" loading="lazy"><span class="atag">🖼 이미지</span></button>';
+    acts = '<button type="button" class="abtn" data-artopen="' + esc(a.id) + '">🔍 크게</button>' +
+      '<a class="abtn" href="' + u + '" download="' + esc(downloadName(a)) + '" target="_blank" rel="noopener">⬇ 저장</a>';
+  } else if (a.type === 'video') {
+    if (isDirectVideo(a.url)) {
+      thumb = '<div class="athumb vid"><video src="' + u + '" controls playsinline preload="metadata"></video><span class="atag">🎬 영상</span></div>';
+      acts = '<button type="button" class="abtn primary" data-artopen="' + esc(a.id) + '">▶ 영상 재생</button>' +
+        '<a class="abtn" href="' + u + '" download="' + esc(downloadName(a)) + '">⬇ 저장</a>';
+    } else {
+      var yid = ytId(a.url);
+      var bg = yid ? ' style="background-image:url(https://img.youtube.com/vi/' + esc(yid) + '/hqdefault.jpg)"' : '';
+      thumb = '<a class="athumb yt"' + bg + ' href="' + u + '" target="_blank" rel="noopener">' +
+        '<span class="play">▶</span><span class="atag">🎬 영상</span></a>';
+      acts = '<a class="abtn primary" href="' + u + '" target="_blank" rel="noopener">▶ 영상 열기</a>' +
+        '<button type="button" class="abtn" data-artcopy="' + esc(a.id) + '">🔗 복사</button>';
+    }
+  } else if (a.type === 'file' || a.type === 'link') {
+    thumb = '<a class="athumb lk" href="' + u + '" target="_blank" rel="noopener">' +
+      '<span class="big">' + ART_ICON[a.type] + '</span><span class="host">' + esc(hostOf(a.url)) + '</span>' +
+      '<span class="atag">' + ART_ICON[a.type] + ' ' + ART_LABEL[a.type] + '</span></a>';
+    acts = '<a class="abtn primary" href="' + u + '" target="_blank" rel="noopener">🔗 열기</a>' +
+      '<button type="button" class="abtn" data-artcopy="' + esc(a.id) + '">복사</button>';
+  } else {
+    thumb = '<button type="button" class="athumb rp" data-doc="' + esc(a.taskId || '') + '">' +
+      '<span class="big">📝</span><span class="host">보고서</span><span class="atag">📝 보고서</span></button>';
+    acts = '<button type="button" class="abtn primary" data-doc="' + esc(a.taskId || '') + '">열기</button>';
+  }
+  var taskChip = '';
+  var linked = a.taskId ? findTask(a.taskId) : null;
+  if (linked && !a.report) {
+    taskChip = '<div class="ataskrow"><button type="button" class="atask" data-doc="' + esc(linked.id) + '">📋 ' +
+      esc(clip(linked.text, 24)) + '</button></div>';
+  }
+  return '<div class="acard ' + esc(a.type) + '">' + thumb +
+    '<div class="ameta"><b class="atitle">' + esc(title) + '</b>' +
+    (a.text ? '<span class="atext">' + esc(clip(a.text, 74)) + '</span>' : '') +
+    '<div class="asub"><span class="asender" title="' + esc(s.name) + '">' + esc(s.emoji + ' ' + s.name) + '</span>' +
+    '<span class="atime">' + esc(when) + '</span></div>' +
+    taskChip + '<div class="aacts">' + acts + '</div></div></div>';
+}
+
+/* 보고 카드(채팅·문서 모달) 안의 첨부 미리보기 */
+function artifactChipsHtml(t){
+  var ats = attachmentsOf(t);
+  if (!ats.length) return '';
+  var h = '<div class="rchips">';
+  for (var i = 0; i < ats.length && i < 6; i++) {
+    var a = ats[i];
+    if (a.type === 'image') {
+      h += '<button type="button" class="rchip img" data-artopen="' + esc(a.id) + '" title="' + esc(a.title) + '">' +
+        '<img src="' + esc(a.url) + '" alt=""></button>';
+    } else {
+      h += '<button type="button" class="rchip" data-artopen="' + esc(a.id) + '">' +
+        ART_ICON[a.type] + ' ' + esc(clip(a.title, 16)) + '</button>';
+    }
+  }
+  if (ats.length > 6) h += '<span class="rchip more">+' + (ats.length - 6) + '</span>';
+  return h + '</div>';
+}
+
+function docAttachHtml(t){
+  var ats = attachmentsOf(t);
+  if (!ats.length) return '';
+  var h = '<div class="docattach"><b>📎 첨부 ' + ats.length + '</b><div class="docattach-row">';
+  for (var i = 0; i < ats.length; i++) {
+    var a = ats[i];
+    h += '<button type="button" class="docattach-item" data-artopen="' + esc(a.id) + '">' +
+      (a.type === 'image' ? '<img src="' + esc(a.url) + '" alt="">' : '<i>' + ART_ICON[a.type] + '</i>') +
+      '<span>' + esc(clip(a.title, 22)) + '</span></button>';
+  }
+  return h + '</div></div>';
+}
+
+/* ══ 결과물 탭 전체 그리기 ══ */
+function renderDocsView(){
+  var box = $('#docList');
+  if (!box) return;
+  var counts = typeCounts();
+  var f = state.docFilter || 'all';
+  if (f !== 'all' && !counts[f]) f = 'all';
+
+  var arts = allArtifacts().filter(function(a){ return a.type !== 'report'; });
+  var reps = (state.tasks || []).filter(function(t){ return !!t.result; }).map(reportArtifact);
+  var entries;
+  if (f === 'report') entries = reps;
+  else if (f === 'all') entries = arts.concat(reps);
+  else entries = arts.filter(function(a){ return a.type === f; });
+  entries = entries.slice().sort(function(x, y){ return (y.createdAt || 0) - (x.createdAt || 0); });
+
+  var defs = [['all', '전체', '📦'], ['image', '이미지', '🖼'], ['video', '영상', '🎬'],
+              ['link', '링크', '🔗'], ['file', '파일', '📄'], ['report', '보고서', '📝']];
+  var chips = '';
+  for (var i = 0; i < defs.length; i++) {
+    var d = defs[i];
+    if (d[0] !== 'all' && !counts[d[0]]) continue;
+    chips += '<button type="button" class="docchip' + (f === d[0] ? ' on' : '') + '" data-docfilter="' + d[0] + '">' +
+      d[2] + ' ' + d[1] + '<em>' + (counts[d[0]] || 0) + '</em></button>';
+  }
+  var head = '<div class="docbar"><div class="docchips">' + chips + '</div>' +
+    '<button type="button" class="docadd" data-artupload="1">＋ 결과물 올리기</button></div>';
+
+  var body;
+  if (!entries.length) {
+    body = '<div class="empty">' + (counts.all
+      ? '이 종류의 결과물은 아직 없어요.'
+      : '아직 결과물이 없어요.<br>이미지 파일이나 링크를 올리면 여기에 쌓입니다 📦') + '</div>';
+  } else {
+    body = '<div class="docgrid">' + entries.map(artCardHtml).join('') + '</div>';
+  }
+  box.innerHTML = head + body;
+}
+
+function setDocFilter(f){
+  state.docFilter = f || 'all';
+  renderDocsView();
+}
+
+/* ══ 라이트박스(전체 화면 미리보기) ══ */
+function lbSources(){
+  var out = [];
+  var all = allArtifacts();
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].type === 'image' || (all[i].type === 'video' && isDirectVideo(all[i].url))) out.push(all[i]);
+  }
+  return out;
+}
+
+function openLightbox(id){
+  var a = findArtifact(id);
+  if (!a) { toast('결과물을 찾지 못했어요'); return; }
+  if (a.type === 'link' || a.type === 'file' || a.report) { openUrl(a.url); return; }
+  if (a.type === 'video' && !isDirectVideo(a.url)) { openUrl(a.url); return; }
+
+  window.__lbId = a.id;
+  var box = $('#lightbox'), body = $('#lbBody'), title = $('#lbTitle'), foot = $('#lbFoot');
+  if (!box || !body) return;
+  if (a.type === 'image') {
+    body.innerHTML = '<img id="lbImg" class="lbimg" src="' + esc(a.url) + '" alt="' + esc(a.title || '') + '">';
+  } else {
+    body.innerHTML = '<video id="lbVid" class="lbimg" src="' + esc(a.url) + '" controls autoplay playsinline></video>';
+  }
+  if (title) title.textContent = a.title || ART_LABEL[a.type] || '결과물';
+  var srcs = lbSources(), idx = -1;
+  for (var i = 0; i < srcs.length; i++) if (srcs[i].id === a.id) { idx = i; break; }
+  if (foot) {
+    foot.innerHTML = (srcs.length > 1 && idx >= 0
+      ? '<button type="button" class="lbbtn" data-lbstep="-1"' + (idx === 0 ? ' disabled' : '') + '>‹ 이전</button>' +
+        '<span class="lbn">' + (idx + 1) + ' / ' + srcs.length + '</span>' +
+        '<button type="button" class="lbbtn" data-lbstep="1"' + (idx === srcs.length - 1 ? ' disabled' : '') + '>다음 ›</button>'
+      : '') +
+      '<a class="lbbtn primary" href="' + esc(a.url) + '" download="' + esc(downloadName(a)) + '" target="_blank" rel="noopener">저장</a>' +
+      '<a class="lbbtn" href="' + esc(a.url) + '" target="_blank" rel="noopener">새 창</a>' +
+      '<button type="button" class="lbbtn" data-lbclose="1">닫기</button>';
+  }
+  box.classList.add('on');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(){
+  var box = $('#lightbox');
+  if (box) box.classList.remove('on');
+  document.body.style.overflow = '';
+  window.__lbId = '';
+}
+
+function stepLightbox(delta){
+  var srcs = lbSources(), cur = window.__lbId, idx = -1;
+  for (var i = 0; i < srcs.length; i++) if (srcs[i].id === cur) { idx = i; break; }
+  var next = srcs[idx + delta];
+  if (next) openLightbox(next.id);
+}
+
+function openUrl(u){
+  var s = String(u || '');
+  if (!s) return;
+  try {
+    if (/^https?:\/\//i.test(s)) { window.open(s, '_blank', 'noopener'); return; }
+    var a = document.createElement('a');
+    a.href = s; a.target = '_blank'; a.rel = 'noopener';
+    a.download = s.slice(0, 12);
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ try { document.body.removeChild(a); } catch (e) {} }, 800);
+  } catch (e) { toast('열지 못했어요. 주소를 복사해 주세요.'); }
+}
+
+/* ══ 결과물 올리기 ══ */
+function openArtifactModal(){
+  var who = $('#artWho');
+  if (who) {
+    var opts = '<option value="owner">👔 사장님</option>';
+    visibleMembers().forEach(function(m){
+      opts += '<option value="' + esc(m.id) + '">' + esc(m.emoji + ' ' + m.name) + '</option>';
+    });
+    who.innerHTML = opts;
+    who.value = 'owner';
+  }
+  if ($('#artTitle')) $('#artTitle').value = '';
+  if ($('#artUrl')) $('#artUrl').value = '';
+  if ($('#artFile')) $('#artFile').value = '';
+  if ($('#artFileHint')) $('#artFileHint').textContent = 'JPG · PNG · WebP · GIF — 고르면 자동으로 줄여 올립니다 (250KB 이하).';
+  if ($('#artFileName')) $('#artFileName').textContent = '선택된 파일 없음';
+  var pr = $('#artPrevRow');
+  if (pr) pr.hidden = true;
+  window.__artFileData = '';
+  openModal('modalArtifact');
+}
+
+/* 고른 이미지를 250KB 이하 JPEG dataURL 로 줄인다 */
+function shrinkImage(file, cb){
+  try {
+    var reader = new FileReader();
+    reader.onload = function(){
+      var img = new Image();
+      img.onload = function(){
+        var MAXPX = 1400;
+        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+        var sc = Math.min(1, MAXPX / Math.max(w, h));
+        w = Math.max(1, Math.round(w * sc)); h = Math.max(1, Math.round(h * sc));
+        var cv = document.createElement('canvas');
+        cv.width = w; cv.height = h;
+        var c = cv.getContext('2d');
+        c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+        c.drawImage(img, 0, 0, w, h);
+        var q = 0.86;
+        var out = cv.toDataURL('image/jpeg', q);
+        var guard = 0;
+        while (out.length > IMG_DATA_MAX && q > 0.36 && guard < 10) {
+          q -= 0.1; out = cv.toDataURL('image/jpeg', q); guard++;
+        }
+        while (out.length > IMG_DATA_MAX && w > 360 && guard < 24) {
+          w = Math.round(w * 0.82); h = Math.round(h * 0.82);
+          cv.width = w; cv.height = h;
+          c = cv.getContext('2d');
+          c.fillStyle = '#fff'; c.fillRect(0, 0, w, h);
+          c.drawImage(img, 0, 0, w, h);
+          q = 0.8; out = cv.toDataURL('image/jpeg', q); guard++;
+        }
+        cb(out);
+      };
+      img.onerror = function(){ toast('이미지를 읽지 못했어요. 다른 파일로 해보세요.'); };
+      img.src = String(reader.result);
+    };
+    reader.onerror = function(){ toast('파일을 읽지 못했어요.'); };
+    reader.readAsDataURL(file);
+  } catch (e) { toast('이 브라우저에서는 파일을 줄일 수 없어요. 링크로 올려주세요.'); }
+}
+
+function onArtFilePick(){
+  var f = $('#artFile');
+  var file = f && f.files && f.files[0];
+  if (!file) return;
+  if (file.type && !/^image\//.test(file.type)) { toast('이미지 파일만 올릴 수 있어요'); return; }
+  shrinkImage(file, function(dataUrl){
+    window.__artFileData = dataUrl;
+    var box = $('#artPrev'), pr = $('#artPrevRow');
+    if (box) box.innerHTML = '<img src="' + esc(dataUrl) + '" alt="미리보기">';
+    if (pr) pr.hidden = false;
+    if ($('#artFileName')) $('#artFileName').textContent = (file.name || '이미지') + ' · ' + Math.round(dataUrl.length / 1024) + 'KB';
+    if ($('#artFileHint')) $('#artFileHint').textContent = '자동 압축 완료 · ' + Math.round(dataUrl.length / 1024) + 'KB (250KB 이하)';
+    var t = $('#artTitle');
+    if (t && !t.value && file.name) t.value = String(file.name).replace(/\.[a-z0-9]+$/i, '').slice(0, 60);
+  });
+}
+
+function saveArtifactForm(){
+  var titleEl = $('#artTitle'), urlEl = $('#artUrl'), whoEl = $('#artWho');
+  var title = titleEl ? String(titleEl.value || '').trim() : '';
+  var url = String(window.__artFileData || '').trim();
+  if (!url && urlEl) url = String(urlEl.value || '').trim();
+  if (!url) { toast('이미지 파일을 고르거나 링크 주소를 넣어주세요'); return; }
+  if (!/^(https?:\/\/|data:image\/)/i.test(url)) { toast('http(s):// 주소나 이미지 파일만 올릴 수 있어요'); return; }
+  var whoId = whoEl && whoEl.value ? String(whoEl.value) : 'owner';
+  var m = whoId !== 'owner' ? byId(whoId) : null;
+  var a = addArtifact({
+    title: title || ((m ? m.name : '사장님') + ' 결과물'),
+    url: url, agentId: whoId, agentName: m ? m.name : '사장님', createdAt: Date.now()
+  });
+  closeModal('modalArtifact');
+  window.__artFileData = '';
+  if (a) {
+    toast(a.type === 'image' ? '이미지를 올렸어요 🖼' : '결과물을 올렸어요 📦');
+    if (state.mobileView && state.mobileView !== 'docs') setMobileView('docs');
+    renderDocs();
+  }
+}
+
+
+/* ══════════════════════════════════════════════════════════
    25. 파일 저장 · 클립보드
    ══════════════════════════════════════════════════════════ */
 function downloadFile(name, text){
@@ -4991,7 +5774,8 @@ function openDoc(id){
   if (!t || !t.result) { toast('아직 결과물이 없어요'); return; }
   window.__currentDoc = t;
   $('#docTitle').textContent = clip(t.text, 70);
-  $('#docBody').innerHTML = mdToHtml(t.result);
+  var attach = (typeof docAttachHtml === 'function') ? docAttachHtml(t) : '';
+  $('#docBody').innerHTML = attach + mdToHtml(t.result);
   openModal('modalDoc');
   $('#modalDoc .sheet').scrollTop = 0;
 }
@@ -5035,6 +5819,15 @@ function exportAll(){
     L.push('');
   });
   if (!any) L.push('(아직 결과물이 없습니다)');
+  var arts = (typeof allArtifacts === 'function') ? allArtifacts() : [];
+  if (arts.length) {
+    L.push('');
+    L.push('### 📎 이미지 · 영상 · 링크');
+    L.push('');
+    arts.forEach(function(a){
+      L.push('- [' + (ART_LABEL[a.type] || a.type) + '] ' + (a.title || '') + ' — ' + a.url);
+    });
+  }
   downloadFile('피클_가상오피스_' + stamp() + '.md', L.join('\n'));
   toast('기록을 파일로 저장했어요 ⬇️');
 }
@@ -5133,10 +5926,15 @@ function renderUnread(){
    ══════════════════════════════════════════════════════════ */
 function selectTab(name, keepNav){
   state.tab = name;
+  document.body.setAttribute('data-tab', name || 'chat');
   $$('.tab').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tab') === name); });
   $$('.pane').forEach(function(p){ p.classList.toggle('on', p.id === 'pane-' + name); });
+  var titles = { chat:'💬 팀 챗', tasks:'📋 업무', team:'👥 팀원', docs:'📦 결과물' };
+  var pt = $('#paneTitle');
+  if (pt && titles[name]) pt.textContent = titles[name];
   if (!keepNav && !isNarrow()) setNavActive(name);
   if (name === 'chat') { var b = $('#msgs'); if (b) b.scrollTop = b.scrollHeight; }
+  if (name === 'docs' && typeof renderDocsView === 'function') renderDocsView();
 }
 
 function submitTask(e){
@@ -5370,6 +6168,26 @@ function bindUI(){
     var el = e.target;
     while (el && el !== document) {
       if (el.getAttribute) {
+        var aop = el.getAttribute('data-artopen');
+        if (aop) {
+          var art = findArtifact(aop);
+          if (art && art.report) { openDoc(art.taskId); return; }
+          openLightbox(aop);
+          return;
+        }
+        var acp = el.getAttribute('data-artcopy');
+        if (acp) {
+          var ac = findArtifact(acp);
+          if (ac) copyText(ac.url, '주소를 복사했어요 🔗');
+          return;
+        }
+        var af = el.getAttribute('data-docfilter');
+        if (af) { setDocFilter(af); return; }
+        if (el.hasAttribute('data-artupload')) { openArtifactModal(); return; }
+        if (el.hasAttribute('data-artfile')) { var fi = $('#artFile'); if (fi && fi.click) fi.click(); return; }
+        var lstep = el.getAttribute('data-lbstep');
+        if (lstep) { stepLightbox(Number(lstep) || 1); return; }
+        if (el.hasAttribute('data-lbclose')) { closeLightbox(); return; }
         var doc = el.getAttribute('data-doc');
         if (doc) { openDoc(doc); return; }
         var cp = el.getAttribute('data-copytask');
@@ -5426,6 +6244,21 @@ function bindUI(){
   };
   var hf = $('#hireForm'); if (hf) hf.onsubmit = function(e){ e.preventDefault(); saveHire(); };
 
+  /* 결과물 올리기 · 라이트박스 */
+  var afp = $('#artFile'); if (afp) afp.onchange = onArtFilePick;
+  var asv = $('#btnArtSave'); if (asv) asv.onclick = saveArtifactForm;
+  var aus = $('#artUrl');
+  if (aus) aus.oninput = function(){
+    var v = String(aus.value || '').trim();
+    var prev = $('#artPrevRow'), box = $('#artPrev');
+    if (/^(https?:\/\/|data:image\/)/i.test(v) && /(\\.(png|jpe?g|gif|webp|avif)|^data:image)/i.test(v)) {
+      if (box) box.innerHTML = '<img src="' + esc(v) + '" alt="미리보기">';
+      if (prev) prev.hidden = false;
+    } else if (prev && !window.__artFileData) { prev.hidden = true; }
+  };
+  var lbx = $('#lightbox');
+  if (lbx) lbx.addEventListener('click', function(e){ if (e.target === lbx) closeLightbox(); });
+
   /* 설정 */
   var ss = $('#btnSaveSettings'); if (ss) ss.onclick = saveSettingsFromForm;
   var sp = $('#setProvider');
@@ -5468,7 +6301,11 @@ function bindUI(){
 
   /* ESC */
   document.addEventListener('keydown', function(e){
-    if (e.key === 'Escape') { closeAllModals(); window.__confirmCb = null; }
+    if (e.key === 'Escape') {
+      var lb = $('#lightbox');
+      if (lb && lb.classList.contains('on')) { closeLightbox(); return; }
+      closeAllModals(); window.__confirmCb = null;
+    }
   });
 
   /* 크기 변경 */
@@ -5554,7 +6391,18 @@ window.PICKLE_OFFICE = {
   slots: function(){ return CLAY.slots; },
   claimSlot: function(id, zone, idx){ return claimSlot(byId(id), zone, idx); },
   db: function(){ return { online:FB.online, firstPull:FB.firstPull, lastSyncAt:FB.lastSyncAt, lastError:FB.lastError }; },
-  applyRemoteAgents: applyRemoteAgents
+  applyRemoteAgents: applyRemoteAgents,
+  applyRemoteArtifacts: applyRemoteArtifacts,
+  artifacts: function(){
+    return allArtifacts().map(function(a){
+      return { id:a.id, type:a.type, url:a.url, title:a.title, text:a.text,
+               agentId:a.agentId, agentName:a.agentName, taskId:a.taskId, createdAt:a.createdAt, fromRemote:!!a.fromRemote };
+    });
+  },
+  docs: function(){ return { filter: state.docFilter, counts: typeCounts() }; },
+  setDocFilter: setDocFilter,
+  openLightbox: openLightbox,
+  addArtifact: addArtifact
 };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
