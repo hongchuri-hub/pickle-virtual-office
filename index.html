@@ -634,6 +634,19 @@ input,textarea,select{font:inherit;color:inherit}
 .athumb.lk,.athumb.rp{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:linear-gradient(165deg,#fdf8ef,#f6eee0)}
 .athumb.lk .big,.athumb.rp .big{font-size:22px;line-height:1}
 .athumb.lk .host,.athumb.rp .host{font-size:10px;font-weight:800;color:#957f68;max-width:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 파일 카드 — 엑셀 · PDF · 문서 */
+.athumb.fl{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  border-bottom:1px solid #f1e6d6;background:linear-gradient(165deg,#fbf5ea,#f2e7d5)}
+.athumb.fl .big{font-size:30px;line-height:1;filter:drop-shadow(0 2px 3px rgba(120,90,60,.16))}
+.athumb.fl .fname2{font-size:10px;font-weight:800;color:#7d6a56;max-width:92%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;padding:0 2px}
+.athumb.fl.xls{background:linear-gradient(165deg,#f2fbf1,#dff0dd)}
+.athumb.fl.pdf{background:linear-gradient(165deg,#fdf2f2,#f6dcdc)}
+.athumb.fl.doc{background:linear-gradient(165deg,#f1f6fd,#dce7f6)}
+.athumb.fl.zip{background:linear-gradient(165deg,#f8f4fd,#e8e0f4)}
+.atag.xls{background:#eaf7e7 !important;color:#3a6b35 !important}
+.atag.pdf{background:#fdeaea !important;color:#9c3d3d !important}
+.atag.doc{background:#e9f0fb !important;color:#3f5d8c !important}
+.atag.zip{background:#f2ecfb !important;color:#5f4a8a !important}
 .ameta{padding:8px 9px 9px;display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 auto}
 .atitle{font-size:12px;font-weight:800;color:#3f3026;line-height:1.32;word-break:break-word;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -651,6 +664,13 @@ input,textarea,select{font:inherit;color:inherit}
   font-size:10.5px;font-weight:800;color:#7d6a56;white-space:nowrap;
 }
 .abtn.primary{background:linear-gradient(180deg,#fff0f2,#fde3e7);border-color:#f6d5da;color:#a85665}
+/* ⬇ 다운로드 — 파일 카드에서 한 줄을 다 쓰는 주버튼 */
+.abtn.dl{
+  flex:1 1 100%;padding:6px 8px;font-size:11.5px;border-radius:9px;border-color:#f3c2ca;
+  background:linear-gradient(180deg,#fde6ea,#f8ccd4);color:#9d4b5b;
+  box-shadow:0 4px 10px rgba(226,132,146,.22);
+}
+.abtn.dl:active{transform:translateY(1px)}
 
 /* 보고 카드 안의 첨부 */
 .rchips{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;align-items:center}
@@ -1182,8 +1202,8 @@ input,textarea,select{font:inherit;color:inherit}
     </div>
     <div class="frow">
       <label for="artUrl">또는 링크 주소</label>
-      <input type="text" id="artUrl" placeholder="https://… (유튜브 · 드라이브 · 이미지 · PDF)">
-      <div class="hint">이미지 주소는 미리보기, 유튜브는 영상 카드로 보입니다.</div>
+      <input type="text" id="artUrl" placeholder="https://… (유튜브 · 드라이브 · 이미지 · PDF · 엑셀)">
+      <div class="hint">이미지 주소는 미리보기, 유튜브는 영상, 엑셀(.xlsx)·PDF(.pdf)·한글(.hwp)은 <b>⬇ 다운로드</b> 카드로 보입니다.</div>
     </div>
     <div class="frow">
       <label for="artWho">올린 사람</label>
@@ -5182,6 +5202,34 @@ var MAX_ARTIFACTS = 80;
 var IMG_DATA_MAX = 250 * 1024 * 4 / 3;          /* 250KB 바이너리 ≈ 333K dataURL 글자 */
 var ART_LABEL = { image:'이미지', video:'영상', link:'링크', file:'파일', report:'보고서' };
 var ART_ICON  = { image:'🖼', video:'🎬', link:'🔗', file:'📄', report:'📝' };
+/* 파일 카드 배지: 엑셀 · PDF · 문서 (확장자로 판별) */
+var FILE_KINDS = [
+  { re:/^(xlsx|xlsm|xlsb|xls|csv|tsv|ods|numbers)$/, badge:'📊 엑셀', label:'엑셀', cls:'xls', big:'📊' },
+  { re:/^pdf$/,                                    badge:'📕 PDF',  label:'PDF',  cls:'pdf', big:'📕' },
+  { re:/^(hwp|hwpx|docx|doc|txt|md|rtf|odt|pages|pptx|ppt)$/, badge:'📄 문서', label:'문서', cls:'doc', big:'📄' },
+  { re:/^(zip|alz|7z|rar|tar|gz)$/,                badge:'🗂 압축', label:'압축', cls:'zip', big:'🗂' }
+];
+/* 주소(없으면 제목)에서 확장자 뽑기 */
+function fileExtOf(url, title){
+  var u = String(url || '');
+  if (/^data:/i.test(u)) {
+    var dm = /^data:[a-z0-9.+-]+\/([a-z0-9.+-]+)/i.exec(u);
+    if (dm) return dm[1].toLowerCase().replace(/^x-/, '').replace(/^vnd\./, '');
+  }
+  var m = /\.([a-z0-9]{1,6})(?:[?#]|$)/i.exec(u);
+  if (m) return m[1].toLowerCase();
+  var tm = /\.([a-z0-9]{1,6})$/i.exec(String(title || '').trim());
+  return tm ? tm[1].toLowerCase() : '';
+}
+/* 파일 종류 배지 — 모르는 확장자면 null */
+function fileKindOf(url, title){
+  var f = fileExtOf(url, title);
+  if (!f) return null;
+  for (var i = 0; i < FILE_KINDS.length; i++) {
+    if (FILE_KINDS[i].re.test(f)) return { badge:FILE_KINDS[i].badge, label:FILE_KINDS[i].label, cls:FILE_KINDS[i].cls, ext:f, big:FILE_KINDS[i].big };
+  }
+  return null;
+}
 
 function artId(){ return 'a_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1679616).toString(36); }
 /* 카드용 짧은 시각: 오늘 12:01 / 어제 11:41 / 11월 25일 (화) 09:12 */
@@ -5226,15 +5274,19 @@ function guessArtType(url, type){
   if (/\.(pdf|docx?|xlsx?|pptx?|hwp|hwpx|zip|alz|csv|txt|md)(\?|#|$)/i.test(s)) return 'file';
   return s ? 'link' : 'file';
 }
+/* 저장할 때 붙일 파일 이름 — 제목에 이미 확장자가 있으면 그대로 */
 function downloadName(a){
   var base = String((a && a.title) || '결과물').replace(/[\\/:*?"<>|]+/g, ' ').trim() || '결과물';
   var u = String((a && a.url) || '');
-  var m = /\.([a-z0-9]{2,5})(?:\?|#|$)/i.exec(u);
-  if (/^data:image\/jpe?g/i.test(u)) return base + '.jpg';
-  if (/^data:image\/png/i.test(u)) return base + '.png';
-  if (/^data:image\/webp/i.test(u)) return base + '.webp';
-  if (m) return base.indexOf('.') > 0 && base.slice(-5).indexOf(m[1]) >= 0 ? base : base + '.' + m[1];
-  return base;
+  var ext = fileExtOf(u, a && a.title);
+  if (/^data:image\/jpe?g/i.test(u)) ext = 'jpg';
+  else if (/^data:image\/png/i.test(u)) ext = 'png';
+  else if (/^data:image\/webp/i.test(u)) ext = 'webp';
+  else if (/^data:image\/gif/i.test(u)) ext = 'gif';
+  else if (/^data:video\/mp4/i.test(u)) ext = 'mp4';
+  if (!ext) return base;
+  try { if (new RegExp('\\.' + ext + '$', 'i').test(base)) return base; } catch (e) {}
+  return base + '.' + ext;
 }
 
 /* ── 규격 맞추기 ───────────────────────────────────────── */
@@ -5261,6 +5313,10 @@ function normArtifact(src, key){
 }
 
 /* ── 보낸 사람 배지 ───────────────────────────────────── */
+function artIcon(a){
+  if (a && a.type === 'file') { var fk = fileKindOf(a.url, a.title); if (fk) return fk.big; }
+  return ART_ICON[(a && a.type) || 'file'] || '📄';
+}
 function artSender(a){
   var id = String((a && a.agentId) || '');
   var m = id ? byId(id) : null;
@@ -5460,10 +5516,21 @@ function artCardHtml(a){
       acts = '<a class="abtn primary" href="' + u + '" target="_blank" rel="noopener">▶ 영상 열기</a>' +
         '<button type="button" class="abtn" data-artcopy="' + esc(a.id) + '">🔗 복사</button>';
     }
-  } else if (a.type === 'file' || a.type === 'link') {
+  } else if (a.type === 'file') {
+    /* 파일 카드: 엑셀 · PDF · 문서 배지를 앞세우고 ⬇ 다운로드를 크게 둔다 */
+    var fk = fileKindOf(a.url, a.title) || { badge:'📄 파일', label:'파일', cls:'doc', big:'📄', ext:'' };
+    var fname = downloadName(a);
+    thumb = '<a class="athumb fl ' + esc(fk.cls) + '" href="' + u + '" target="_blank" rel="noopener" title="' + esc(fname) + '">' +
+      '<span class="big">' + fk.big + '</span>' +
+      '<span class="fname2">' + esc(clip(fname, 34)) + '</span>' +
+      '<span class="atag ' + esc(fk.cls) + '">' + fk.badge + '</span></a>';
+    acts = '<a class="abtn primary dl" href="' + u + '" download="' + esc(fname) + '" target="_blank" rel="noopener">⬇ 다운로드</a>' +
+      '<a class="abtn" href="' + u + '" target="_blank" rel="noopener">🔗 열기</a>' +
+      '<button type="button" class="abtn" data-artcopy="' + esc(a.id) + '">복사</button>';
+  } else if (a.type === 'link') {
     thumb = '<a class="athumb lk" href="' + u + '" target="_blank" rel="noopener">' +
-      '<span class="big">' + ART_ICON[a.type] + '</span><span class="host">' + esc(hostOf(a.url)) + '</span>' +
-      '<span class="atag">' + ART_ICON[a.type] + ' ' + ART_LABEL[a.type] + '</span></a>';
+      '<span class="big">' + ART_ICON.link + '</span><span class="host">' + esc(hostOf(a.url)) + '</span>' +
+      '<span class="atag">' + ART_ICON.link + ' ' + ART_LABEL.link + '</span></a>';
     acts = '<a class="abtn primary" href="' + u + '" target="_blank" rel="noopener">🔗 열기</a>' +
       '<button type="button" class="abtn" data-artcopy="' + esc(a.id) + '">복사</button>';
   } else {
@@ -5497,7 +5564,7 @@ function artifactChipsHtml(t){
         '<img src="' + esc(a.url) + '" alt=""></button>';
     } else {
       h += '<button type="button" class="rchip" data-artopen="' + esc(a.id) + '">' +
-        ART_ICON[a.type] + ' ' + esc(clip(a.title, 16)) + '</button>';
+        artIcon(a) + ' ' + esc(clip(a.title, 16)) + '</button>';
     }
   }
   if (ats.length > 6) h += '<span class="rchip more">+' + (ats.length - 6) + '</span>';
@@ -5511,7 +5578,7 @@ function docAttachHtml(t){
   for (var i = 0; i < ats.length; i++) {
     var a = ats[i];
     h += '<button type="button" class="docattach-item" data-artopen="' + esc(a.id) + '">' +
-      (a.type === 'image' ? '<img src="' + esc(a.url) + '" alt="">' : '<i>' + ART_ICON[a.type] + '</i>') +
+      (a.type === 'image' ? '<img src="' + esc(a.url) + '" alt="">' : '<i>' + artIcon(a) + '</i>') +
       '<span>' + esc(clip(a.title, 22)) + '</span></button>';
   }
   return h + '</div></div>';
@@ -5695,7 +5762,7 @@ function onArtFilePick(){
   var f = $('#artFile');
   var file = f && f.files && f.files[0];
   if (!file) return;
-  if (file.type && !/^image\//.test(file.type)) { toast('이미지 파일만 올릴 수 있어요'); return; }
+  if (file.type && !/^image\//.test(file.type)) { toast('이미지 파일만 고를 수 있어요 · 엑셀·PDF·한글은 files/ 주소를 붙여넣어 주세요'); return; }
   shrinkImage(file, function(dataUrl){
     window.__artFileData = dataUrl;
     var box = $('#artPrev'), pr = $('#artPrevRow');
@@ -5724,7 +5791,10 @@ function saveArtifactForm(){
   closeModal('modalArtifact');
   window.__artFileData = '';
   if (a) {
-    toast(a.type === 'image' ? '이미지를 올렸어요 🖼' : '결과물을 올렸어요 📦');
+    var fk2 = a.type === 'file' ? fileKindOf(a.url, a.title) : null;
+    toast(a.type === 'image' ? '이미지를 올렸어요 🖼'
+      : fk2 ? (fk2.badge + ' 카드를 올렸어요 ⬇')
+      : '결과물을 올렸어요 📦');
     if (state.mobileView && state.mobileView !== 'docs') setMobileView('docs');
     renderDocs();
   }
