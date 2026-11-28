@@ -1317,8 +1317,10 @@ function roleKind(m){
    3. 레이아웃 (구역 · 좌석)
    ══════════════════════════════════════════════════════════ */
 function makeSlots(id){
-  var pts = (CLAY.slots[id] || CLAY.slots.desk).map(function(p){ return { x:p[0], y:p[1] }; });
-  return pts.length ? pts : [{ x:CLAY.w / 2, y:CLAY.h / 2 }];
+  /* 좌석이 없는 구역(헬스장)은 빈 배열 — resolveSlot 이 stall(문 앞) 좌표를 쓴다 */
+  if (!Object.prototype.hasOwnProperty.call(CLAY.slots, id)) return makeSlots('desk');
+  var arr = CLAY.slots[id] || [];
+  return arr.map(function(p){ return { x:p[0], y:p[1] }; });
 }
 
 function buildLayout(){
