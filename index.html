@@ -416,6 +416,9 @@ input,textarea,select{font:inherit;color:inherit}
 .pill.md{background:#fff4d9;color:#a97a1e}
 .pill.lo{background:#e9f7ee;color:#3f8a63}
 .pill.rs{background:#f4f1ea;color:#8d7d68}
+.pill.bad{background:#fde7e3;color:#b3261e;box-shadow:0 0 0 1px rgba(229,83,61,.25) inset}
+/* 🚫 한도 초과 — 흐리게 보이고 복구 버튼이 붙는다 */
+.item.quotacard{background:#fff8f6;border-color:#f3c9c1}
 .bar{height:5px;background:#f3ead9;border-radius:99px;margin-top:8px;overflow:hidden}
 .bar > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#f4b3ba,#a9d8b9);transition:width .4s}
 .steps{margin:7px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}
@@ -959,6 +962,7 @@ input,textarea,select{font:inherit;color:inherit}
             </div>
             <div class="sel-acts">
               <button type="button" class="btn mini ack" id="btnAck" hidden>✅ 확인</button>
+              <button type="button" class="btn mini warn" id="btnQuotaReset" hidden>🚫 한도 초기화</button>
               <button type="button" class="btn mini" id="btnCall">부르기</button>
               <button type="button" class="btn mini primary" id="btnTalk">1:1 대화</button>
               <button type="button" class="btn mini" id="btnInfo">정보</button>
@@ -1073,6 +1077,14 @@ input,textarea,select{font:inherit;color:inherit}
           <button type="button" class="btn mini" id="btnResetUsage">사용량 초기화</button>
         </div>
       </div>
+      <div class="frow" id="hireQuotaRow" hidden>
+        <label>한도 상태</label>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="pill bad">🚫 한도 초과 — 일시 중단</span>
+          <button type="button" class="btn mini warn" id="btnQuotaReset2">한도 초기화</button>
+        </div>
+        <div class="hint">한도가 초기화되면(피클은 매일 04시 · Gemini 무료 한도는 리셋 시점) 이 버튼을 눌러 다시 일하게 합니다.</div>
+      </div>
       <div class="frow">
         <label for="hirePersona">성격 · 말투</label>
         <textarea id="hirePersona" placeholder="예: 꼼꼼하고 차분한 성격. 결론부터 짧게 말합니다."></textarea>
@@ -1102,8 +1114,8 @@ input,textarea,select{font:inherit;color:inherit}
     </div>
     <div class="frow">
       <label for="setModel">모델 이름 (비우면 기본값)</label>
-      <input type="text" id="setModel" placeholder="gemini-2.5-flash">
-      <div class="hint">예: gemini-2.5-flash / gemini-2.0-flash / gpt-4o-mini</div>
+      <input type="text" id="setModel" placeholder="gemini-3.5-flash-lite">
+      <div class="hint">예: gemini-3.5-flash-lite / gemini-3.1-flash-lite / gpt-4o-mini — 404(NOT_FOUND)면 3.5-flash-lite로 한 번 더 시도합니다.</div>
     </div>
     <div class="frow">
       <label for="setKey">API 키 <span class="kstate no" id="keyState">키 없음</span></label>
@@ -1154,8 +1166,11 @@ input,textarea,select{font:inherit;color:inherit}
     <div class="note">
       🔒 <b>키는 이 브라우저에만</b> 저장됩니다(localStorage). 피클 서버로 보내지 않고, 브라우저에서
       Gemini/OpenAI로 직접 요청합니다. 공용 기기에서는 쓰지 마세요.<br>
-      ✅ 기본값은 <b>🕓 피클 대기</b>입니다. 모모·송송은 실제 피클이 응답하고, AI가 연결되지 않은 비서는
-      응답하지 않습니다 (가짜 대사 없음).<br>
+      🔑 사장님 Google 계정으로 로그인하면 실시간 DB의 비밀 보관함(/secrets/gemini_key)에서 키를 받아
+      이 기기에서 바로 탐이를 깨웁니다.<br>
+      ✅ 기본값은 <b>🕓 피클 대기</b>입니다. 모모·송송은 실제 피클이 응답하고, AI 키가 연결된 비서(탐이)는
+      이 화면에서 바로 일합니다. AI가 연결되지 않은 비서는 응답하지 않습니다 (가짜 대사 없음).<br>
+      🚫 무료 한도(429)나 사용 한도를 다 쓰면 그 비서는 책상에서 <b>🚫 한도 초과</b>로 멈춥니다.<br>
       ⚠️ OpenAI는 브라우저 CORS 제한으로 막힐 수 있어 <b>Gemini를 권장</b>합니다.
     </div>
 
@@ -1360,7 +1375,8 @@ var API_KEY_STORE = 'pickle_virtual_office_key_v1';
 var MAX_CHAT = 240;
 var MAX_TASKS = 24;
 
-var DEFAULT_MODELS = { gemini:'gemini-2.5-flash', openai:'gpt-4o-mini' };
+/* 기본 모델 — 새 Gemini 키에서는 2.5-flash 가 404(NOT_FOUND)라 3.5-flash-lite 를 쓴다 */
+var DEFAULT_MODELS = { gemini:'gemini-3.5-flash-lite', openai:'gpt-4o-mini' };
 
 var PALETTE = ['#8ed7f5','#f7b6d2','#a8e6a1','#ffd28a','#c8b8f0','#9fe3d8','#ffb59b','#b9d8ff','#f3c7a1','#d8c7f5'];
 var EMOJIS  = ['👑','🌸','🔍','✏️','💻','📊','🎨','🗂️','📮','🧠','🍀','☕','🎧','🧾','📣','🐣','🌙','⭐'];
@@ -1519,6 +1535,15 @@ function alive(m){ return m && state.members.indexOf(m) >= 0; }
    · 연결되지 않은 비서는 대사·응답을 절대 지어내지 않고, 오피스 지도에도 나오지 않는다. */
 var PICKLE_CONNECTED = { momo:true, wife_pickle:true };
 
+/* 비서별 AI 제공자 — API 키 하나로는 그 제공자 비서만 일할 수 있다.
+   · 탐이(리서치) = Gemini, 글이(문서) = OpenAI
+   · 목록에 없는 비서(직접 채용)는 설정의 전역 제공자를 따른다 */
+var MEMBER_PROVIDER = { tami:'gemini', geuli:'openai' };
+function providerFor(m){
+  if (!m) return state.settings.provider === 'openai' ? 'openai' : 'gemini';
+  return MEMBER_PROVIDER[m.id] || (state.settings.provider === 'openai' ? 'openai' : 'gemini');
+}
+
 function hasApiKey(){ return !!loadKey(); }
 function useRealAI(){ return !!(state.settings.real && loadKey()); }
 function isPickleConnected(m){
@@ -1526,14 +1551,20 @@ function isPickleConnected(m){
   if (PICKLE_CONNECTED[m.id]) return true;
   return !!m.remoteConnected;
 }
+/* 이 비서가 지금 쓸 수 있는 키가 이 기기에 있는가 (제공자까지 맞아야 한다) */
+function memberHasKey(m){
+  if (!useRealAI()) return false;
+  return providerFor(m) === (state.settings.provider === 'openai' ? 'openai' : 'gemini');
+}
 function agentConnected(m){
   if (!m) return false;
   if (isPickleConnected(m)) return true;
-  return useRealAI();
+  return memberHasKey(m);
 }
 function connectionLabel(m){
   if (isPickleConnected(m)) return '피클 연결됨';
-  if (useRealAI()) return 'AI 키 연결됨';
+  if (agentConnected(m)) return 'AI 키 연결됨';
+  if (useRealAI()) return providerFor(m) === 'gemini' ? 'Gemini 키 필요' : 'OpenAI 키 필요';
   return '미연결';
 }
 function connectedMembers(){ return state.members.filter(agentConnected); }
@@ -1543,6 +1574,121 @@ function visibleMembers(){ return state.members.filter(agentConnected); }
 function isOnMap(m){ return !!m && agentConnected(m); }
 function noAiNoticeText(name){
   return '🔌 ' + (name || '이 비서') + '는 아직 AI API가 연결되지 않아 응답할 수 없습니다. 상단 ⚙️에서 API 키를 연결해 주세요.';
+}
+
+/* ── 🚫 무료 한도 초과 ────────────────────────────────────
+   Gemini 가 429(RESOURCE_EXHAUSTED)를 주거나 사용 한도를 다 쓰면 그 비서는
+   더 일하지 못한다. 지도에서는 책상에 앉은 채 흐리게 보이고 머리 옆 🚫 배지와
+   발밑 '🚫 한도 초과' 표시가 붙는다. 한도가 풀리면 [한도 초기화]로 되돌린다. */
+var QUOTA_STATUS = '🚫 한도 초과';
+var QUOTA_NOTE = '무료 한도 초과 — 일시 중단';
+
+function usageLimitReached(m){
+  if (!m || !m.usage) return false;
+  var lim = Math.max(1, Number(m.usage.limit) || 100);
+  return (Number(m.usage.used) || 0) >= lim;
+}
+function isQuotaExceeded(m){
+  if (!m) return false;
+  if (m.quotaExceeded) return true;
+  return agentConnected(m) && usageLimitReached(m);
+}
+function quotaDeskZone(m){ return (m && m.homeZone) || 'desk'; }
+
+/* ── 사용 한도 표기 ────────────────────────────────────────
+   피클 비서(모모·송송)는 '피클 무료 한도'(매일 04시 초기화),
+   탐이는 'Gemini 무료 API' 를 쓴다. 모두 'N/100회' 막대로 보여 주면
+   무엇이 줄어드는지 오해하므로 종류를 붙여 적는다. */
+function usageKind(m){
+  if (isPickleConnected(m)) return 'pickle';
+  return providerFor(m) === 'openai' ? 'openai' : 'gemini';
+}
+function usageKindLabel(m){
+  var k = usageKind(m);
+  if (k === 'pickle') return '피클 무료 한도';
+  if (k === 'openai') return 'OpenAI API';
+  return 'Gemini 무료 API';
+}
+function usageKindHint(m){
+  var k = usageKind(m);
+  if (k === 'pickle') return '매일 04시 초기화';
+  if (k === 'openai') return 'OpenAI API 키 사용량';
+  return 'Gemini 무료 한도 · 429(RESOURCE_EXHAUSTED) 시 🚫 한도 초과';
+}
+function usageBadgeText(m){
+  if (!m) return '';
+  var used = Math.max(0, Number(m.usage && m.usage.used) || 0);
+  if (isQuotaExceeded(m)) return '🚫 한도 초과 · ' + usageKindLabel(m);
+  return '오늘 ' + used + '회 · ' + usageKindLabel(m);
+}
+/* 피클 무료 한도는 100회 같은 막대로 보여 주지 않는다 (오해 방지) */
+function usageBarPct(m){
+  if (usageKind(m) === 'pickle') return 0;
+  return usagePct(m);
+}
+function quotaNoticeText(name){
+  return '🚫 ' + (name || '이 비서') + '는 무료 한도를 다 써서 지금은 일할 수 없습니다. ' +
+         '한도가 초기화되면 팀원 카드의 [한도 초기화]를 눌러 주세요.';
+}
+function setQuotaExceeded(m, note){
+  if (!alive(m)) return false;
+  var first = !m.quotaExceeded;
+  m.quotaExceeded = true;
+  m.quotaNote = note || QUOTA_NOTE;
+  m.remoteStatus = QUOTA_STATUS;
+  m.remoteStatusAt = Date.now();
+  m.state = 'idle';
+  m.typingUntil = 0;
+  m.bubble = '';
+  m.bubbleUntil = 0;
+  jumpToDesk(m);
+  if (typeof syncAgentOne === 'function') syncAgentOne(m);
+  if (typeof fbOn === 'function' && fbOn() && (typeof fbLocked !== 'function' || !fbLocked())) {
+    fbPatch('/agents/' + m.id, {
+      zone: m.zone, status: QUOTA_STATUS, note: m.quotaNote,
+      quotaExceeded: true, updatedAt: Date.now()
+    }).catch(function(e){ FB.lastError = e.message; });
+  }
+  if (first) {
+    pushMsg({ who:'system', noSync:true,
+      text:'🚫 ' + m.name + '가 무료 한도를 다 써서 ' + (quotaDeskZone(m) === 'lead' ? '지휘실' : '사무공간') +
+            ' 책상에서 멈췄습니다. 한도가 초기화되면 [한도 초기화]를 눌러 주세요.' });
+    toast('🚫 ' + m.name + ' 한도 초과');
+  }
+  renderAll(); save();
+  return true;
+}
+/* 지금 있는 자리에서 책상으로 옮겨 앉힌다 (걷지 않고 바로) */
+function jumpToDesk(m){
+  if (!m) return;
+  var zone = quotaDeskZone(m);
+  m.walking = false; m.route = null; m.speed = 0; m.goal = null;
+  var dest = (typeof resolveSlot === 'function') ? resolveSlot(m, zone, homeSlotFor(m)) : null;
+  if (dest) { m.x = dest.x; m.y = dest.y; m.zone = zone; m.slot = dest.idx; }
+  else m.zone = zone;
+}
+function resetQuota(m){
+  if (!alive(m)) return false;
+  var wasUsedUp = usageLimitReached(m);
+  m.quotaExceeded = false;
+  m.quotaNote = '';
+  if (wasUsedUp) {
+    m.usage = m.usage || { used:0, limit:100, unit:'회' };
+    m.usage.used = 0;           /* 한도를 다 쓴 상태였으면 사용량도 0으로 되돌린다 */
+  }
+  m.remoteStatus = m.leader ? '지휘 중' : '대기 중';
+  m.remoteStatusAt = Date.now();
+  m.state = 'idle';
+  if (typeof syncAgentOne === 'function') syncAgentOne(m);
+  if (typeof fbOn === 'function' && fbOn() && (typeof fbLocked !== 'function' || !fbLocked())) {
+    fbPatch('/agents/' + m.id, {
+      status: m.remoteStatus, note: '', quotaExceeded: false, updatedAt: Date.now()
+    }).catch(function(e){ FB.lastError = e.message; });
+  }
+  pushMsg({ who:'system', noSync:true, text:'✅ ' + m.name + ' 한도를 초기화했습니다 — 다시 일할 수 있습니다.' });
+  renderAll(); save();
+  toast('✅ ' + m.name + ' 한도 초기화');
+  return true;
 }
 
 /* 역할 종류 추론 (분담 이름 선택용) */
@@ -1605,7 +1751,8 @@ function save(){
       members: state.members.map(function(m){
         return { id:m.id, name:m.name, role:m.role, emoji:m.emoji, color:m.color,
                  personality:m.personality, leader:!!m.leader, homeZone:m.homeZone || 'desk',
-                 usage: m.usage || { used:0, limit:100, unit:'회' } };
+                 usage: m.usage || { used:0, limit:100, unit:'회' },
+                 quotaExceeded: !!m.quotaExceeded, quotaNote: m.quotaNote || '' };
       }),
       chat: state.chat.slice(-MAX_CHAT),
       tasks: state.tasks.slice(0, MAX_TASKS).map(function(t){
@@ -1916,6 +2063,7 @@ function makeActor(src){
     usage: (src.usage && typeof src.usage === 'object')
       ? { used: Math.max(0, Number(src.usage.used) || 0), limit: Math.max(1, Number(src.usage.limit) || 100), unit: src.usage.unit || '회' }
       : { used: 0, limit: 100, unit: '회' },
+    quotaExceeded: !!src.quotaExceeded, quotaNote: src.quotaNote || '',
     x: 0, y: 0, tx: 0, ty: 0, walking: false, onArrive: null,
     zone: src.homeZone || 'desk', slot: 0, facing: 1,
     state: 'idle', stateUntil: 0, phase: Math.random() * 6,
@@ -2289,6 +2437,8 @@ function statusEmoji(txt){
 function activityOf(m){
   if (!m) return { emoji:'❔', label:'—' };
   if (!agentConnected(m)) return { emoji:'🔌', label:'미연결' };
+  /* 무료 한도 초과 — 다른 상태보다 먼저 보여 준다 (지금은 일할 수 없다) */
+  if (isQuotaExceeded(m)) return { emoji:'🚫', label:'한도 초과' };
   if (m.typingUntil > Date.now()) return { emoji:'⌨️', label:'입력 중' };
   if (m.walking) return STATES.moving;
   var base = STATES[m.state] || STATES.idle;
@@ -2320,7 +2470,9 @@ function usageColor(p){
 
 function drawUsageBar(m, cs){
   cs = cs || (layout ? layout.charScale : 1);
-  var p = usagePct(m);
+  /* 피클 비서는 '피클 무료 한도'(매일 04시 초기화)를 쓴다 — 100회 막대로 보이면 오해한다 */
+  if (usageKind(m) === 'pickle') return;
+  var p = usageBarPct(m);
   var w = 20 * cs, h = 2.2 * cs;
   var x = m.x - w / 2, y = m.y + 1.8 * cs;
   fillR(x, y, w, h, h / 2, 'rgba(255,250,240,.45)');
@@ -2354,6 +2506,9 @@ function drawChar(m, t){
   var bob = m.walking ? Math.abs(Math.sin(m.phase * 7)) * 2.2 : Math.sin(t * 1.7 + m.phase) * 1.0;
   var x = m.x, y = m.y - bob;
   var blink = m.blink > 0;
+  /* 🚫 한도 초과 — 책상에 앉은 채 흐리게 보인다 */
+  var dim = isQuotaExceeded(m);
+  if (dim) { ctx.save(); ctx.globalAlpha = 0.55; }
 
   /* 부드러운 3D 바닥 그림자 */
   ctx.save();
@@ -2454,6 +2609,8 @@ function drawChar(m, t){
 
   /* 왕관 */
   if (m.leader) drawCrown(x, y - h - 5 * cs, cs * 0.95);
+
+  if (dim) ctx.restore();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -2489,14 +2646,16 @@ function drawStatusPill(m){
   var p = pillMetrics(m);
   var sel = m.id === state.selected;
   var off = !agentConnected(m);
+  var q = isQuotaExceeded(m);
   var dot = off ? '#b9ad99' : m.color;
 
   ctx.save();
   ctx.shadowColor = 'rgba(122,84,44,.22)';
   ctx.shadowBlur = 8; ctx.shadowOffsetY = 2;
-  fillR(p.x, p.y, p.w, p.h, p.h / 2, sel ? '#4a3a2e' : 'rgba(255,252,246,.97)');
+  fillR(p.x, p.y, p.w, p.h, p.h / 2, sel ? '#4a3a2e' : (q ? '#fff6f4' : 'rgba(255,252,246,.97)'));
   ctx.restore();
-  strokeR(p.x, p.y, p.w, p.h, p.h / 2, sel ? '#4a3a2e' : (off ? 'rgba(190,178,158,.9)' : rgba(dot, 0.85)), 1);
+  strokeR(p.x, p.y, p.w, p.h, p.h / 2,
+          sel ? '#4a3a2e' : (q ? '#e5533d' : (off ? 'rgba(190,178,158,.9)' : rgba(dot, 0.85))), q ? 1.4 : 1);
 
   /* 색 점 + 이름 (머리 위 고정) */
   ell(p.x + 10, p.y + p.h / 2, 3.4, 3.4, sel ? '#ffe0b8' : dot);
@@ -2525,16 +2684,40 @@ function footTagMetrics(m){
 
 function drawFootTag(m){
   var p = footTagMetrics(m);
+  var q = isQuotaExceeded(m);
   ctx.save();
   ctx.globalAlpha = 0.97;
-  fillR(p.x, p.y, p.w, p.h, p.h / 2, 'rgba(255,251,243,.95)');
+  fillR(p.x, p.y, p.w, p.h, p.h / 2, q ? '#fde7e3' : 'rgba(255,251,243,.95)');
   ctx.restore();
-  strokeR(p.x, p.y, p.w, p.h, p.h / 2, rgba(m.color, 0.6), 1);
+  strokeR(p.x, p.y, p.w, p.h, p.h / 2, q ? '#e5533d' : rgba(m.color, 0.6), q ? 1.4 : 1);
   setFont(p.fs, '800');
-  ctx.fillStyle = '#6b5644';
+  ctx.fillStyle = q ? '#b3261e' : '#6b5644';
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText(p.txt, p.x + p.w / 2, p.y + p.h / 2 + 0.5);
   return p;
+}
+
+/* ── 🚫 한도 초과 배지 — 이름표 오른쪽 끝에 붙는 빨간 표식 ──────── */
+function quotaBadgeMetrics(m){
+  var pill = charPillCache[m.id] || pillMetrics(m);
+  var r = compactUI() ? 8.5 : 10;
+  var x = pill.x + pill.w - r * 0.35;
+  var y = pill.y + pill.h / 2;
+  return { x:clamp(x, r + 1, Math.max(r + 1, view.cw - r - 1)),
+           y:clamp(y, r + 1, Math.max(r + 1, view.ch - r - 1)), r:r };
+}
+function drawQuotaBadge(m){
+  var b = quotaBadgeMetrics(m);
+  ctx.save();
+  ctx.shadowColor = 'rgba(160,40,20,.30)';
+  ctx.shadowBlur = 7; ctx.shadowOffsetY = 2;
+  fillR(b.x - b.r, b.y - b.r, b.r * 2, b.r * 2, b.r, '#ffe9e4');
+  ctx.restore();
+  strokeR(b.x - b.r, b.y - b.r, b.r * 2, b.r * 2, b.r, '#e5533d', 1.4);
+  setFont(Math.round(b.r * 1.35), '800');
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('🚫', b.x, b.y + 0.5);
+  return b;
 }
 
 function zoneIsPrimary(id){ return id === 'lead' || id === 'desk' || id === 'meet' || id === 'lounge' || id === 'gym'; }
@@ -2724,6 +2907,10 @@ function renderScene(t){
   }
   for (var q = 0; q < sorted.length; q++) drawBubble(sorted[q]);
   for (var f = 0; f < sorted.length; f++) footTagCache[sorted[f].id] = drawFootTag(sorted[f]);
+  /* 🚫 한도 초과 배지는 이름표 위(화면 좌표)에 따로 그린다 */
+  for (var b2 = 0; b2 < sorted.length; b2++) {
+    if (isQuotaExceeded(sorted[b2])) drawQuotaBadge(sorted[b2]);
+  }
 }
 
 
@@ -3118,6 +3305,10 @@ function incrementUsage(m, n){
   if (!m.usage) m.usage = { used:0, limit:100, unit:'회' };
   var add = (typeof n === 'number') ? n : 1;
   m.usage.used = Math.max(0, (Number(m.usage.used) || 0) + add);
+  /* 사용 한도를 다 쓰면 그 비서는 책상에서 멈춘다 (🚫 한도 초과) */
+  if (usageLimitReached(m) && typeof setQuotaExceeded === 'function') {
+    setQuotaExceeded(m, '사용 한도 도달 — 일시 중지');
+  }
   if (typeof syncAgentOne === 'function') syncAgentOne(m);
   saveSoon();
   renderTeam();
@@ -3229,21 +3420,28 @@ function renderSelCard(){
   } else {
     tLine.hidden = true;
   }
-  /* 사용량 */
+  /* 사용량 — 피클 무료 한도 / Gemini 무료 API 를 구분해 적는다 */
   var uInfo = $('#selUsage'), uBar = $('#selBar');
   if (uInfo) {
-    var uu = m.usage || { used:0, limit:100, unit:'회' };
-    uInfo.textContent = '사용량 ' + (Number(uu.used) || 0) + ' / ' + (Number(uu.limit) || 100) + (uu.unit || '회') + ' (' + usagePct(m) + '%)';
+    uInfo.textContent = usageBadgeText(m);
+    uInfo.title = usageKindHint(m);
+    uInfo.style.color = isQuotaExceeded(m) ? '#b3261e' : '';
   }
   if (uBar) {
+    var k2 = usageKind(m);
+    uBar.hidden = (k2 === 'pickle');
     var fill = uBar.querySelector('i');
     if (fill) {
-      fill.style.width = usagePct(m) + '%';
-      fill.style.background = usageColor(usagePct(m));
+      var p2 = (k2 === 'pickle') ? 0 : usageBarPct(m);
+      fill.style.width = p2 + '%';
+      fill.style.background = usageColor(p2);
     }
   }
   var talk = $('#btnTalk');
   if (talk) talk.textContent = '1:1 대화';
+  /* 🚫 한도 초과 — 선택 카드에 [한도 초기화] 버튼 */
+  var qb = $('#btnQuotaReset');
+  if (qb) qb.hidden = !isQuotaExceeded(m);
   /* 보고 확인 버튼 — 보고대에 있거나 확인 안 한 보고가 있으면 보인다 */
   var ack = $('#btnAck');
   if (ack) {
@@ -3545,7 +3743,7 @@ function ackReport(memberId, taskId){
 /* ══════════════════════════════════════════════════════════
    18. 업무 보드 · 멤버 · 결과물
    ══════════════════════════════════════════════════════════ */
-var TASK_STATUS_CLASS = { '대기':'wait', '접수':'wait', '진행':'run', 'DB 전달':'run', '회의 중':'run', '작업 중':'run', '보고 중':'run', '보류':'wait', '오류':'wait', '완료':'done' };
+var TASK_STATUS_CLASS = { '대기':'wait', '접수':'wait', '진행':'run', 'DB 전달':'run', '회의 중':'run', '작업 중':'run', '보고 중':'run', '보류':'wait', '오류':'wait', '완료':'done', '한도 초과':'bad' };
 
 function taskHtml(t){
   var mem = t.target === 'team' ? '팀 전체' : (byId(t.target) ? byId(t.target).name : '팀 전체');
@@ -3592,18 +3790,25 @@ function memberStateText(m){
 
 function memberCardHtml(m){
   var linked = agentConnected(m);
-  var linkPill = linked
-    ? (isPickleConnected(m) ? '<span class="pill done">📡 피클 연결</span>' : '<span class="pill done">🔑 AI 연결</span>')
-    : '<span class="pill off">🔌 미연결</span>';
-  return '<div class="item' + (linked ? '' : ' offcard') + '"><div class="mrow">' +
+  var q = isQuotaExceeded(m);
+  var linkPill = q
+    ? '<span class="pill bad">🚫 한도 초과</span>'
+    : (linked
+        ? (isPickleConnected(m) ? '<span class="pill done">📡 피클 연결</span>' : '<span class="pill done">🔑 AI 연결</span>')
+        : '<span class="pill off">🔌 미연결</span>');
+  var kind = usageKind(m);
+  var pct = usageBarPct(m);
+  return '<div class="item' + (linked ? '' : ' offcard') + (q ? ' quotacard' : '') + '"><div class="mrow">' +
     '<div class="mav" style="background:' + rgba(m.color, 0.3) + '">' + esc(m.emoji) + '</div>' +
     '<div class="mm"><b>' + esc(m.name) + (m.leader ? ' <span class="pill" style="background:#fff3d1;color:#a5812c">팀장</span>' : '') + ' ' + linkPill + '</b>' +
     '<span>' + esc(m.role) + ' · ' + esc(memberStateText(m)) + '</span></div></div>' +
     '<div class="tagline">' + esc(clip(m.personality, 70)) + '</div>' +
-    '<div class="usage"><div class="ubar"><i style="width:' + usagePct(m) + '%;background:' + usageColor(usagePct(m)) + '"></i></div>' +
-    '<span>사용량 ' + (Number(m.usage && m.usage.used) || 0) + ' / ' + (Number(m.usage && m.usage.limit) || 100) + ((m.usage && m.usage.unit) || '회') + ' (' + usagePct(m) + '%)</span></div>' +
+    '<div class="usage" title="' + esc(usageKindHint(m)) + '">' +
+      (kind === 'pickle' ? '' : '<div class="ubar"><i style="width:' + pct + '%;background:' + usageColor(pct) + '"></i></div>') +
+      '<span>' + esc(usageBadgeText(m)) + (kind === 'pickle' ? ' · 매일 04시 초기화' : '') + '</span></div>' +
     '<div class="acts"><button class="btn mini" data-call="' + esc(m.id) + '">부르기</button>' +
     '<button class="btn mini" data-talk="' + esc(m.id) + '">1:1</button>' +
+    (q ? '<button class="btn mini warn" data-quota="' + esc(m.id) + '">🚫 한도 초기화</button>' : '') +
     '<button class="btn mini" data-edit="' + esc(m.id) + '">수정</button></div></div>';
 }
 
@@ -3810,7 +4015,9 @@ function openHire(id){
   $('#hireUnit').value = u.unit || '회';
   var usedRow = $('#hireUsedRow'), usedTxt = $('#hireUsed');
   if (usedRow) usedRow.hidden = !m;
-  if (usedTxt && m) usedTxt.textContent = '지금까지 ' + (u.used || 0) + ' / ' + (u.limit || 100) + (u.unit || '회') + ' 사용 · ' + usagePct(m) + '%';
+  if (usedTxt && m) usedTxt.textContent = usageBadgeText(m) + (usageKind(m) === 'pickle' ? ' · 매일 04시 초기화' : '');
+  var qRow = $('#hireQuotaRow');
+  if (qRow) qRow.hidden = !(m && isQuotaExceeded(m));
   $('#hireName').disabled = !!(m && m.leader);
   $('#btnHireDelete').hidden = !m || m.leader;
   syncPickers();
@@ -4028,6 +4235,16 @@ function apiCall(sys, user, maxTokens){
   if (!key) return Promise.reject(new Error('API 키가 없습니다'));
   var provider = state.settings.provider === 'openai' ? 'openai' : 'gemini';
   var model = state.settings.model || DEFAULT_MODELS[provider];
+  return apiCallOnce(provider, model, key, sys, user, maxTokens).catch(function(e){
+    /* 모델이 없어졌으면(404 NOT_FOUND) 새 기본 모델로 한 번만 다시 부른다 */
+    if (provider === 'gemini' && e && e.status === 404 && model !== DEFAULT_MODELS.gemini) {
+      return apiCallOnce(provider, DEFAULT_MODELS.gemini, key, sys, user, maxTokens);
+    }
+    throw e;
+  });
+}
+
+function apiCallOnce(provider, model, key, sys, user, maxTokens){
   var ctrl = null;
   try { ctrl = new AbortController(); } catch (e) { ctrl = null; }
   var timer = setTimeout(function(){ if (ctrl) { try { ctrl.abort(); } catch (e) {} } }, 75000);
@@ -4065,7 +4282,15 @@ function apiCall(sys, user, maxTokens){
       try { data = JSON.parse(txt); } catch (e) { data = null; }
       if (!res.ok) {
         var msg = (data && data.error && data.error.message) ? data.error.message : ('HTTP ' + res.status);
-        throw new Error(msg);
+        var errState = (data && data.error && data.error.status) ? String(data.error.status) : '';
+        var e2 = new Error(msg);
+        e2.status = res.status;
+        e2.code = errState;
+        /* 무료 한도 초과 — 429 RESOURCE_EXHAUSTED */
+        e2.quota = (res.status === 429) || errState === 'RESOURCE_EXHAUSTED' ||
+                   /quota|exceeded your current quota/i.test(String(msg));
+        if (e2.quota) e2.message = '무료 한도 초과' + (msg ? ' (' + clip(msg, 80) + ')' : '');
+        throw e2;
       }
       if (!data) throw new Error('응답을 해석할 수 없어요');
       if (provider === 'gemini') {
@@ -4195,7 +4420,7 @@ async function runTeamTask(task){
   /* 이 화면에서 실제로 일할 수 있는 AI가 없으면 아무 대사도 만들지 않는다 */
   if (!useRealAI()) { holdNoAi(task, '팀'); return; }
 
-  var workers = state.members.filter(function(m){ return !m.leader && agentConnected(m); });
+  var workers = state.members.filter(function(m){ return !m.leader && agentConnected(m) && !isQuotaExceeded(m); });
 
   pushMsg({ who:'system', text:'📥 「' + clip(task.text, 44) + '」 지시 접수 — 팀장 모모가 맡습니다.' });
   setTaskStatus(task, '접수', 6);
@@ -4356,19 +4581,25 @@ async function workMember(job, task, tok, cat, topic){
   await waitMs(rand(300, 600), tok);
   if (tok !== sessionToken) return null;
 
-  var out = '', err = '';
+  var out = '', err = '', quotaErr = false;
   setTyping(m, 3000);
   renderTyping();
   try {
     out = await apiMemberWork(m, job.sub, task);
   } catch (e) {
     err = e.message;
+    if (e && e.quota) quotaErr = true;
     pushMsg({ who:'system', text:'⚠️ ' + m.name + ' AI 호출 실패: ' + e.message });
   } finally {
     if (alive(m)) m.typingUntil = 0;
     renderTyping();
   }
   if (tok !== sessionToken) return null;
+
+  if (quotaErr) {
+    setQuotaExceeded(m, QUOTA_NOTE);
+    return { m:m.id, text:'', real:false, failed:true, quota:true, error:err };
+  }
 
   if (!String(out || '').trim()) {
     pushMsg({ who:'system', text:'🔌 ' + m.name + '가 응답하지 못해 이 단계는 건너뜁니다 (대사로 채우지 않습니다).' });
@@ -4396,6 +4627,18 @@ async function runSoloTask(task){
 
   if (!agentConnected(m) || !useRealAI()) { holdNoAi(task, m ? m.name : '비서'); return; }
 
+  /* 🚫 무료 한도가 끝난 비서는 책상에서 멈추고 이유를 알린다 */
+  if (isQuotaExceeded(m)) {
+    jumpToDesk(m);
+    pushMsg({ who:'system', text: quotaNoticeText(m.name) });
+    task.status = '한도 초과';
+    task.progress = 0;
+    task.note = '한도 초과';
+    renderTasks(); save();
+    toast('🚫 ' + m.name + ' 한도 초과');
+    return;
+  }
+
   pushMsg({ who:'system', text:'📥 「' + clip(task.text, 44) + '」 — ' + m.name + '에게 지시.' });
   setTaskStatus(task, '접수', 10);
   setState(m, 'reporting');
@@ -4410,18 +4653,28 @@ async function runSoloTask(task){
   await walkTo(m, zone, 0);
   if (tok !== sessionToken) return;
 
-  var out = '', err = '';
+  var out = '', err = '', quotaErr = false;
   setTyping(m, 3000);
   renderTyping();
   try {
     out = await apiMemberWork(m, (SUBTASKS[cat] || SUBTASKS.general)[kind] || '맡은 일', task);
   } catch (e) {
     err = e.message;
+    if (e && e.quota) quotaErr = true;
     pushMsg({ who:'system', text:'⚠️ ' + m.name + ' AI 호출 실패: ' + e.message });
   }
   if (alive(m)) m.typingUntil = 0;
   renderTyping();
   if (tok !== sessionToken) return;
+
+  if (quotaErr) {
+    task.progress = 40;
+    task.note = '무료 한도 초과';
+    setQuotaExceeded(m, QUOTA_NOTE);
+    task.status = '한도 초과';
+    renderTasks(); save();
+    return;
+  }
 
   if (!String(out || '').trim()) {
     pushMsg({ who:'system', text:'⚠️ 응답이 비어 있어 결과를 지어내지 않고 여기서 멈춥니다.' });
@@ -4440,12 +4693,17 @@ async function runSoloTask(task){
   if (alive(m)) {
     setTyping(m, 2400);
     try { report = await apiMomoReport(task, task.steps, state.members); }
-    catch (e) { err = e.message; pushMsg({ who:'system', text:'⚠️ 보고서 AI 호출 실패: ' + e.message }); }
+    catch (e) {
+      err = e.message;
+      if (e && e.quota) quotaErr = true;
+      pushMsg({ who:'system', text:'⚠️ 보고서 AI 호출 실패: ' + e.message });
+    }
     if (alive(m)) m.typingUntil = 0;
     renderTyping();
   }
   var aiReport = !!report;
   if (!report) report = buildFailureReport(task, task.steps, err);
+  if (quotaErr) setQuotaExceeded(m, QUOTA_NOTE);
 
   await walkTo(m, 'report', 1);
   if (tok !== sessionToken) return;
@@ -4457,7 +4715,11 @@ async function runSoloTask(task){
   spawnSparkles(m.x, m.y - 30, 10, m.color);
   renderAll(); save();
   toast('결과 도착! 📬');
-  /* 보고대에 그대로 서서 사장님 확인을 기다린다 (확인 → 자기 자리 복귀) */
+  /* 결과를 올린 뒤에는 자기 자리(사무공간 책상)로 돌아간다 */
+  setState(m, 'idle');
+  await waitMs(500, tok);
+  if (tok !== sessionToken) return;
+  await walkTo(m, m.leader ? 'lead' : (m.homeZone || 'desk'), homeSlotFor(m));
   setState(m, 'idle');
 }
 
@@ -4558,6 +4820,44 @@ function fbPost(path, data){ return fbReq(path, { method:'POST', body: JSON.stri
 function fbPatch(path, data){ return fbReq(path, { method:'PATCH', body: JSON.stringify(data) }); }
 function fbDelete(path){ return fbReq(path, { method:'DELETE' }); }
 
+/* ── 🔑 Gemini 키 자동 수신 ───────────────────────────────
+   사장님 Google 계정으로 로그인하면 DB 비밀 보관함(/secrets/gemini_key)에서
+   키를 받아 이 기기(localStorage)에 넣는다. 그러면 탐이가 어느 기기에서든
+   로그인만 하면 바로 일할 수 있다. 키는 화면・로그에 찍지 않는다. */
+var FB_KEY = { loading:false, tried:false };
+function fbLoadGeminiKey(force){
+  if (typeof fbOn !== 'function' || !fbOn()) return Promise.resolve('');
+  if (typeof fbLocked === 'function' && fbLocked()) return Promise.resolve('');
+  if (!force && loadKey()) return Promise.resolve(loadKey());
+  if (FB_KEY.loading) return Promise.resolve(loadKey());
+  FB_KEY.loading = true;
+  return fbReq('/secrets/gemini_key').then(function(v){
+    FB_KEY.loading = false;
+    FB_KEY.tried = true;
+    var k = '';
+    if (typeof v === 'string') k = v;
+    else if (v && typeof v === 'object' && v.key) k = String(v.key);
+    k = String(k || '').trim();
+    if (!k) return loadKey();
+    if (!loadKey()) {
+      saveKey(k);
+      state.settings.real = true;
+      saveSoon();
+      renderAll();
+      renderSettings();
+      pushMsg({ who:'system', noSync:true,
+        text:'🔑 실시간 DB에서 Gemini 키를 받아 연결했습니다 — 탐이가 이 화면에서 일할 수 있습니다.' });
+      toast('🔑 Gemini 연결됨');
+    }
+    return k;
+  }).catch(function(e){
+    FB_KEY.loading = false;
+    FB_KEY.tried = true;
+    FB.lastError = e.message;
+    return loadKey();
+  });
+}
+
 function normalizeZone(z){
   var s = String(z || '').trim();
   if (/^(lead|팀장|팀장실|leader)$/i.test(s)) return 'lead';
@@ -4588,6 +4888,9 @@ function agentPayload(m){
     connection: connectionLabel(m),
     bubble: (m.bubble && m.bubbleUntil > now) ? m.bubble : '',
     usage: m.usage || { used:0, limit:100, unit:'회' },
+    quotaExceeded: !!m.quotaExceeded,
+    note: m.quotaNote || '',
+    usageKind: usageKind(m),
     updatedAt: now
   };
 }
@@ -4748,6 +5051,18 @@ function applyRemoteAgents(map){
     /* 다른 곳에서 "연결됨"으로 표시했으면 그대로 인정한다 (한 번 true면 유지) */
     if (a.aiConnected === true || a.connected === true) {
       if (!m.remoteConnected) { m.remoteConnected = true; changedPresence = true; }
+    }
+    /* 다른 기기에서 한도 초과로 멈춘 비서는 여기서도 책상에 세운다 */
+    if (a.quotaExceeded === true && !m.quotaExceeded) {
+      m.quotaExceeded = true;
+      m.quotaNote = a.note || QUOTA_NOTE;
+      jumpToDesk(m);
+      renderTeam();
+    } else if (a.quotaExceeded === false && m.quotaExceeded && Number(a.updatedAt) > (m._quotaAt || 0)) {
+      m._quotaAt = Number(a.updatedAt) || Date.now();
+      m.quotaExceeded = false;
+      m.quotaNote = '';
+      renderTeam();
     }
 
     var stamp = Number(a.updatedAt) || 0;
@@ -4935,6 +5250,7 @@ function pollDb(){
     if (!agents || !Object.keys(agents).length || !agents.momo) {
       seedDb();
     }
+    if (!FB_KEY.tried && !loadKey() && typeof fbLoadGeminiKey === 'function') fbLoadGeminiKey(false);
     if (agents) applyRemoteAgents(agents);
     if (messages) applyRemoteMessages(messages);
     if (tasks) applyRemoteTasks(tasks);
@@ -5205,6 +5521,8 @@ function fbAfterSignIn(){
     pollDb();
     FB.timer = setInterval(pollDb, 2500);
   }
+  /* 로그인하면 DB 비밀 보관함에서 Gemini 키를 받아 탐이를 바로 깨운다 */
+  if (typeof fbLoadGeminiKey === 'function') fbLoadGeminiKey(false);
   renderDbBadge();
   renderSettings();
   if (AUTH.clicked) {
@@ -6383,6 +6701,9 @@ function submitTask(e){
 
   var live = (typeof fbLiveMode === 'function') ? fbLiveMode() : false;
   var tm = target === 'team' ? null : byId(target);
+  /* 피클이 아닌 비서(탐이)가 이 화면에서 AI 키로 일할 수 있으면
+     피클 대기 모드여도 Firebase로 넘기지 않고 바로 실행한다. */
+  var localAi = !!(tm && !isPickleConnected(tm) && agentConnected(tm));
 
   function showRefusal(notice){
     pushMsg({ who:'user', text:text, noSync:true });
@@ -6398,15 +6719,23 @@ function submitTask(e){
     return;
   }
 
+  /* ── 1b) 🚫 한도 초과 비서는 책상에 그대로 두고 이유만 알린다 ── */
+  if (tm && isQuotaExceeded(tm)) {
+    jumpToDesk(tm);
+    showRefusal(quotaNoticeText(tm.name));
+    toast('🚫 ' + tm.name + ' 한도 초과');
+    return;
+  }
+
   /* ── 2) 피클 대기 모드: Firebase로만 보낸다 (로컬 시뮬레이션 없음) ── */
-  if (live && !fbOn()) {
+  if (live && !localAi && !fbOn()) {
     showRefusal('📡 실시간 DB가 꺼져 있어 실제 피클에게 지시를 전달할 수 없습니다. 상단 DB 배지를 눌러 켜주세요.');
     toast('실시간 DB가 꺼져 있습니다');
     return;
   }
 
-  /* ── 3) 즉시 실행 모드: 이 화면에서 실제 AI로 일할 수 있을 때만 실행 ── */
-  if (!live && !useRealAI()) {
+  /* ── 3) 이 화면에서 실행할 AI가 없으면 거절한다 ── */
+  if ((!live || localAi) && !useRealAI()) {
     showRefusal('🔌 이 화면에서 바로 실행하려면 ⚙️ 설정에 Gemini 또는 OpenAI API 키가 필요합니다. ' +
       '지금은 🕓 피클 대기 모드로 보내면 실제 피클(모모·송송)이 처리합니다.');
     toast('AI 키가 연결되지 않았습니다');
@@ -6429,7 +6758,11 @@ function submitTask(e){
   if (isNarrow()) setMobileView('chat'); else selectTab('chat');
   renderAll(); save();
 
-  if (live) {
+  if (localAi) {
+    pushMsg({ who:'system', noSync:true, text:'🔑 ' + tm.name + '가 기기에서 Gemini로 바로 처리합니다.' });
+  }
+
+  if (live && !localAi) {
     if (typeof sendLiveTask === 'function') sendLiveTask(task);
     else { task.live = true; task.status = '대기'; task.progress = 10; if (typeof syncTask === 'function') syncTask(task, true); }
     var off = unconnectedMembers().map(function(m){ return m.name; }).join('·');
@@ -6573,6 +6906,11 @@ function bindUI(){
 
   /* 선택 카드 */
   var bk = $('#btnAck'); if (bk) bk.onclick = function(){ if (state.selected) ackReport(state.selected, ''); };
+  var qr = $('#btnQuotaReset');
+  if (qr) qr.onclick = function(){
+    var mm = state.selected ? byId(state.selected) : null;
+    if (mm) { resetQuota(mm); renderSelCard(); }
+  };
   var bc = $('#btnCall'); if (bc) bc.onclick = function(){ if (state.selected) callMember(state.selected); };
   var bt = $('#btnTalk'); if (bt) bt.onclick = function(){ if (state.selected) talkTo(state.selected); };
   var bi = $('#btnInfo'); if (bi) bi.onclick = function(){ if (state.selected) openHire(state.selected); };
@@ -6627,6 +6965,12 @@ function bindUI(){
           if (t && t.result) copyText(t.result, '결과물 복사 완료');
           return;
         }
+        var qt = el.getAttribute('data-quota');
+        if (qt) {
+          var qm = byId(qt);
+          if (qm) { resetQuota(qm); if (state.selected === qm.id) renderSelCard(); }
+          return;
+        }
         var ed = el.getAttribute('data-edit');
         if (ed) { openHire(ed); return; }
         var ak = el.getAttribute('data-ack');
@@ -6667,11 +7011,20 @@ function bindUI(){
     if (!mm) return;
     mm.usage = mm.usage || { used:0, limit:100, unit:'회' };
     mm.usage.used = 0;
+    mm.quotaExceeded = false;
+    mm.quotaNote = '';
     if (typeof syncAgentOne === 'function') syncAgentOne(mm);
     save();
     openHire(mm.id);
     renderAll();
     toast('사용량을 0으로 되돌렸어요');
+  };
+  var qr2 = $('#btnQuotaReset2');
+  if (qr2) qr2.onclick = function(){
+    var mm = hire.id ? byId(hire.id) : null;
+    if (!mm) return;
+    resetQuota(mm);
+    openHire(mm.id);
   };
   var hf = $('#hireForm'); if (hf) hf.onsubmit = function(e){ e.preventDefault(); saveHire(); };
 
