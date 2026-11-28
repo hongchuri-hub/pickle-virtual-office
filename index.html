@@ -4722,7 +4722,7 @@ async function runSoloTask(task){
 
   setTaskStatus(task, '작업 중', 40);
   var kind = roleKind(m);
-  var zone = (m.leader && kind !== 'research') ? 'lead' : 'desk';
+  var zone = m.leader ? 'lead' : 'desk';
   setState(m, kind === 'research' ? 'researching' : 'working');
   await walkTo(m, zone, 0);
   if (tok !== sessionToken) return;
