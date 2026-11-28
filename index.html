@@ -4874,7 +4874,7 @@ function agentPayload(m){
   var info = stateInfo(m);
   var now = Date.now();
   var st = (m.remoteStatus && m.remoteStatusAt && now - m.remoteStatusAt < 25000) ? m.remoteStatus : info.label;
-  return {
+  var p = {
     id: m.id,
     name: m.name,
     role: m.role,
@@ -4889,10 +4889,12 @@ function agentPayload(m){
     bubble: (m.bubble && m.bubbleUntil > now) ? m.bubble : '',
     usage: m.usage || { used:0, limit:100, unit:'회' },
     quotaExceeded: !!m.quotaExceeded,
-    note: m.quotaNote || '',
     usageKind: usageKind(m),
     updatedAt: now
   };
+  /* note 는 한도 초과 같은 예외 상태일 때만 써서, 평소 동기화가 DB 메모를 지우지 않게 한다 */
+  if (m.quotaExceeded) p.note = m.quotaNote || QUOTA_NOTE;
+  return p;
 }
 
 var agentSyncTimer = null;
